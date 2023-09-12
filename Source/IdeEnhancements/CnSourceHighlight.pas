@@ -1317,7 +1317,7 @@ var
 
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TBlockMatchInfo.CheckBlockMatch');
+//  CnDebugger.LogMsg('TBlockMatchInfo.CheckBlockMatch');
 {$ENDIF}
 
   Result := False;
@@ -1337,7 +1337,7 @@ begin
   if Control = nil then
   begin
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('Control = nil');
+//    CnDebugger.LogMsg('Control = nil');
   {$ENDIF}
     Exit;
   end;
@@ -1346,7 +1346,7 @@ begin
     EditView := EditControlWrapper.GetEditView(Control);
   except
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('GetEditView error');
+//    CnDebugger.LogMsg('GetEditView error');
   {$ENDIF}
     Exit;
   end;
@@ -1354,7 +1354,7 @@ begin
   if EditView = nil then
   begin
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('EditView = nil');
+//    CnDebugger.LogMsg('EditView = nil');
   {$ENDIF}
     Exit;
   end;
@@ -1362,7 +1362,7 @@ begin
   if not IsDprOrPas(EditView.Buffer.FileName) and not IsInc(EditView.Buffer.FileName) then
   begin
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('Highlight. Not IsDprOrPas Or Inc: ' + EditView.Buffer.FileName);
+//    CnDebugger.LogMsg('Highlight. Not IsDprOrPas Or Inc: ' + EditView.Buffer.FileName);
 {$ENDIF}
 
     // 判断如果是 C/C++，则解析并保存各个 Tokens，供光标改变时更新 FCurTokenList
@@ -1375,7 +1375,7 @@ begin
       Stream := TMemoryStream.Create;
       try
   {$IFDEF DEBUG}
-        CnDebugger.LogMsg('Parse Cpp Source file: ' + EditView.Buffer.FileName);
+//        CnDebugger.LogMsg('Parse Cpp Source file: ' + EditView.Buffer.FileName);
   {$ENDIF}
 
         {$IFDEF BDS}
@@ -1431,14 +1431,14 @@ begin
       begin
         CheckLineMatch(EditView, GlobalIgnoreClass, GlobalIgnoreNamespace);
     {$IFDEF DEBUG}
-        CnDebugger.LogInteger(LineInfo.Count, 'HighLight Cpp LinePairs Count.');
+//        CnDebugger.LogInteger(LineInfo.Count, 'HighLight Cpp LinePairs Count.');
     {$ENDIF}
       end;
       if CompDirectiveInfo <> nil then
       begin
         CheckCompDirectiveMatch(EditView);
     {$IFDEF DEBUG}
-        CnDebugger.LogInteger(CompDirectiveInfo.Count, 'HighLight Cpp CompDirectivePairs Count.');
+//        CnDebugger.LogInteger(CompDirectiveInfo.Count, 'HighLight Cpp CompDirectivePairs Count.');
     {$ENDIF}
       end;
     end;
@@ -1452,7 +1452,7 @@ begin
       Stream := TMemoryStream.Create;
       try
   {$IFDEF DEBUG}
-        CnDebugger.LogMsg('Parse Pascal Source file: ' + EditView.Buffer.FileName);
+//        CnDebugger.LogMsg('Parse Pascal Source file: ' + EditView.Buffer.FileName);
   {$ENDIF}
 
         {$IFDEF BDS}
@@ -1516,7 +1516,7 @@ begin
     FCurrentBlockSearched := False;
 
   {$IFDEF DEBUG}
-    CnDebugger.LogInteger(FKeyTokenList.Count, 'HighLight Pas KeyList Count.');
+//    CnDebugger.LogInteger(FKeyTokenList.Count, 'HighLight Pas KeyList Count.');
   {$ENDIF}
     Result := (FKeyTokenList.Count > 0) or (FCompDirectiveTokenList.Count > 0);
 
@@ -1532,7 +1532,7 @@ begin
     begin
       UpdateSeparateLineList;
 {$IFDEF DEBUG}
-      CnDebugger.LogInteger(FSeparateLineList.Count, 'FSeparateLineList.Count');
+//      CnDebugger.LogInteger(FSeparateLineList.Count, 'FSeparateLineList.Count');
 {$ENDIF}
     end;
 
@@ -1540,7 +1540,7 @@ begin
     begin
       CheckLineMatch(EditView, GlobalIgnoreClass, GlobalIgnoreNamespace);
     {$IFDEF DEBUG}
-      CnDebugger.LogInteger(LineInfo.Count, 'HighLight Pas LinePairs Count.');
+//      CnDebugger.LogInteger(LineInfo.Count, 'HighLight Pas LinePairs Count.');
     {$ENDIF}
     end;
 
@@ -1548,7 +1548,7 @@ begin
     begin
       CheckCompDirectiveMatch(EditView);
     {$IFDEF DEBUG}
-      CnDebugger.LogInteger(CompDirectiveInfo.Count, 'HighLight Pas CompDirectivePairs Count.');
+//      CnDebugger.LogInteger(CompDirectiveInfo.Count, 'HighLight Pas CompDirectivePairs Count.');
     {$ENDIF}
     end;
   end;
@@ -1641,7 +1641,7 @@ begin
     EditView := EditControlWrapper.GetEditView(FControl);
   except
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('GetEditView error');
+//    CnDebugger.LogMsg('GetEditView error');
   {$ENDIF}
     Exit;
   end;
@@ -1662,10 +1662,10 @@ begin
       end;
 
 {$IFDEF DEBUG}
-      if Assigned(PasParser.MethodStartToken) and
-        Assigned(PasParser.MethodCloseToken) then
-        CnDebugger.LogFmt('CurrentMethod: %s, MethodStartToken: %d, MethodCloseToken: %d',
-          [PasParser.CurrentMethod, PasParser.MethodStartToken.ItemIndex, PasParser.MethodCloseToken.ItemIndex]);
+//      if Assigned(PasParser.MethodStartToken) and
+//        Assigned(PasParser.MethodCloseToken) then
+//        CnDebugger.LogFmt('CurrentMethod: %s, MethodStartToken: %d, MethodCloseToken: %d',
+//          [PasParser.CurrentMethod, PasParser.MethodStartToken.ItemIndex, PasParser.MethodCloseToken.ItemIndex]);
 {$ENDIF}
 
       if Assigned(PasParser.MethodStartToken) and
@@ -1713,7 +1713,7 @@ begin
       ConvertGeneralTokenPos(Pointer(EditView), CppParser.Tokens[I]);
 
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('CppParser.Count: %d', [CppParser.Count]);
+//    CnDebugger.LogFmt('CppParser.Count: %d', [CppParser.Count]);
 {$ENDIF}
     if (FHighlight.BlockHighlightRange in [brMethod, brWholeBlock])
       and Assigned(CppParser.BlockStartToken) and Assigned(CppParser.BlockCloseToken) then
@@ -1747,7 +1747,7 @@ begin
   end;
 
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('FFlowTokenList.Count: %d', [FFlowTokenList.Count]);
+//  CnDebugger.LogFmt('FFlowTokenList.Count: %d', [FFlowTokenList.Count]);
 {$ENDIF}
 
   for I := 0 to FFlowTokenList.Count - 1 do
@@ -1772,7 +1772,7 @@ begin
     EditView := EditControlWrapper.GetEditView(FControl);
   except
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('GetEditView error');
+//    CnDebugger.LogMsg('GetEditView error');
   {$ENDIF}
     Exit;
   end;
@@ -1798,10 +1798,10 @@ begin
       end;
 
 {$IFDEF DEBUG}
-      if Assigned(PasParser.MethodStartToken) and
-        Assigned(PasParser.MethodCloseToken) then
-        CnDebugger.LogFmt('CurrentMethod: %s, MethodStartToken: %d, MethodCloseToken: %d',
-          [PasParser.CurrentMethod, PasParser.MethodStartToken.ItemIndex, PasParser.MethodCloseToken.ItemIndex]);
+//      if Assigned(PasParser.MethodStartToken) and
+//        Assigned(PasParser.MethodCloseToken) then
+//        CnDebugger.LogFmt('CurrentMethod: %s, MethodStartToken: %d, MethodCloseToken: %d',
+//          [PasParser.CurrentMethod, PasParser.MethodStartToken.ItemIndex, PasParser.MethodCloseToken.ItemIndex]);
 {$ENDIF}
 
       if Assigned(PasParser.MethodStartToken) and
@@ -1923,8 +1923,8 @@ begin
   end;
 
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('FCurTokenList.Count: %d; FCurrentTokenName: %s',
-    [FCurTokenList.Count, FCurrentTokenName]);
+//  CnDebugger.LogFmt('FCurTokenList.Count: %d; FCurrentTokenName: %s',
+//    [FCurTokenList.Count, FCurrentTokenName]);
 {$ENDIF}
 
   for I := 0 to FCurTokenList.Count - 1 do
@@ -1943,7 +1943,7 @@ begin
     EditView := EditControlWrapper.GetEditView(FControl);
   except
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('GetEditView error');
+//    CnDebugger.LogMsg('GetEditView error');
   {$ENDIF}
     Exit;
   end;
@@ -1995,7 +1995,7 @@ begin
   ConvertCompDirectiveLineList;
 
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('FCompDirectiveTokenList.Count: %d', [FCompDirectiveTokenList.Count]);
+//  CnDebugger.LogFmt('FCompDirectiveTokenList.Count: %d', [FCompDirectiveTokenList.Count]);
 {$ENDIF}
 
   for I := 0 to FCompDirectiveTokenList.Count - 1 do
@@ -3432,9 +3432,9 @@ begin
 {$IFDEF DEBUG}
     if Result then
     begin
-      CnDebugger.LogFmt('TCnSourceHighlight.GetBracketMatch Matched! %s at %d:%d and %s at %d:%d.',
-        [AInfo.TokenStr, AInfo.TokenPos.Line, AInfo.TokenPos.Col,
-        AInfo.TokenMatchStr, AInfo.TokenMatchPos.Line, AInfo.TokenMatchPos.Col]);
+//      CnDebugger.LogFmt('TCnSourceHighlight.GetBracketMatch Matched! %s at %d:%d and %s at %d:%d.',
+//        [AInfo.TokenStr, AInfo.TokenPos.Line, AInfo.TokenPos.Col,
+//        AInfo.TokenMatchStr, AInfo.TokenMatchPos.Line, AInfo.TokenMatchPos.Col]);
     end;
 {$ENDIF}
   finally
@@ -4783,7 +4783,7 @@ begin
     begin
       FBracketList.Delete(Idx);
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('BracketList Index %d Deleted.', [Idx]);
+//      CnDebugger.LogFmt('BracketList Index %d Deleted.', [Idx]);
 {$ENDIF}
     end;
 
@@ -4792,7 +4792,7 @@ begin
     begin
       FBlockMatchList.Delete(Idx);
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('BlockMatchList Index %d Deleted.', [Idx]);
+//      CnDebugger.LogFmt('BlockMatchList Index %d Deleted.', [Idx]);
 {$ENDIF}
     end;
 
@@ -4801,7 +4801,7 @@ begin
     begin
       FBlockLineList.Delete(Idx);
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('BlockLineList Index %d Deleted.', [Idx]);
+//      CnDebugger.LogFmt('BlockLineList Index %d Deleted.', [Idx]);
 {$ENDIF}
     end;
 
@@ -4810,7 +4810,7 @@ begin
     begin
       FCompDirectiveList.Delete(Idx);
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('CompDirectiveList Index %d Deleted.', [Idx]);
+//      CnDebugger.LogFmt('CompDirectiveList Index %d Deleted.', [Idx]);
 {$ENDIF}
     end;
   end;
@@ -5267,7 +5267,7 @@ begin
   begin
     AHighlight := EditControlWrapper.Highlights[EditControlWrapper.IndexOfHighlight(csCompDirective)];
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('Load IDE Font from Registry: ' + csCompDirective);
+//    CnDebugger.LogMsg('Load IDE Font from Registry: ' + csCompDirective);
 {$ENDIF}
     FCompDirectiveHighlight.ColorFg := AHighlight.ColorFg;
     FCompDirectiveHighlight.ColorBk := AHighlight.ColorBk;
@@ -5278,7 +5278,7 @@ begin
   else // If no default settings saved in Registry, using default.
   begin
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('No IDE Font Found in Registry: ' + csCompDirective + '. Use Default.');
+//    CnDebugger.LogMsg('No IDE Font Found in Registry: ' + csCompDirective + '. Use Default.');
 {$ENDIF}
 {$IFDEF DELPHI5OR6}
     // Delphi 5/6 编译指令格式与注释一样
@@ -5463,8 +5463,8 @@ begin
   FTabWidth := EditControlWrapper.GetTabWidth;
 
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('SourceHighlight: Editor Option Changed. Get UseTabKey is '
-      + BoolToStr(FUseTabKey));
+//    CnDebugger.LogMsg('SourceHighlight: Editor Option Changed. Get UseTabKey is '
+//      + BoolToStr(FUseTabKey));
 {$ENDIF}
 end;
 

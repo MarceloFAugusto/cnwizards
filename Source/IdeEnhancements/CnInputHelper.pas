@@ -1362,7 +1362,7 @@ var
 begin
   C := VK_ScanCodeToAscii(VKey, ScanCode);
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('IsValidCharKey VK_ScanCodeToAscii: %d %d => %d ("%s")', [VKey, ScanCode, Ord(C), C]);
+//  CnDebugger.LogFmt('IsValidCharKey VK_ScanCodeToAscii: %d %d => %d ("%s")', [VKey, ScanCode, Ord(C), C]);
 {$ENDIF}
   if FPosInfo.IsPascal then
     Result := C in ( FirstSet + CharSet)
@@ -1443,7 +1443,7 @@ begin
   if FSymbolReloading then
   begin
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('TCnInputHelper.HandleKeyDown. SymbolReloading Exit.');
+//    CnDebugger.LogMsg('TCnInputHelper.HandleKeyDown. SymbolReloading Exit.');
 {$ENDIF}
     Exit;
   end;
@@ -1459,7 +1459,7 @@ begin
     Key := MapVirtualKey(ScanCode, 1);
 
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('TCnInputHelper.HandleKeyDown, Key: %d, ScanCode: %d', [Key, ScanCode]);
+//  CnDebugger.LogFmt('TCnInputHelper.HandleKeyDown, Key: %d, ScanCode: %d', [Key, ScanCode]);
 {$ENDIF}
 
   // 按下 Alt 时关闭，单纯按 Ctrl 或 Shift 则不关
@@ -1505,7 +1505,7 @@ begin
             begin
               ShouldIgnore := True;
 {$IFDEF DEBUG}
-              CnDebugger.LogMsg('Dot Got. In Uses Area. Ignore ' + FToken);
+//              CnDebugger.LogMsg('Dot Got. In Uses Area. Ignore ' + FToken);
 {$ENDIF}
             end;
           end;
@@ -1522,7 +1522,7 @@ begin
           else if (Key = VK_TAB) and not FTabComplete then
           begin
 {$IFDEF DEBUG}
-            CnDebugger.LogMsg('Ignore Tab Key Input Item But Hide List.');
+//            CnDebugger.LogMsg('Ignore Tab Key Input Item But Hide List.');
 {$ENDIF}
             HideAndClearList;
           end;
@@ -1531,7 +1531,7 @@ begin
           if not ShouldIgnore and ShouldEatTab then
           begin
 {$IFDEF DEBUG}
-            CnDebugger.LogMsg('Tab To Enter when in Sync Mode. Eat it to Avoid Jump.');
+//            CnDebugger.LogMsg('Tab To Enter when in Sync Mode. Eat it to Avoid Jump.');
 {$ENDIF}
             Result := True;
           end;
@@ -1608,7 +1608,7 @@ var
 begin
   Result := False;
 {$IFDEF DEBUG}
-  CnDebugger.LogInteger(Ord(Key), 'TCnInputHelper.HandleKeyPress');
+//  CnDebugger.LogInteger(Ord(Key), 'TCnInputHelper.HandleKeyPress');
 {$ENDIF}
 
   FNeedUpdate := False;
@@ -1677,7 +1677,7 @@ begin
   if FSymbolReloading then
   begin
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('TCnInputHelper.HandleKeyUp. SymbolReloading Exit.');
+//    CnDebugger.LogMsg('TCnInputHelper.HandleKeyUp. SymbolReloading Exit.');
 {$ENDIF}
     Exit;
   end;
@@ -1686,8 +1686,8 @@ begin
   ScanCode := (Msg.lParam and $00FF0000) shr 16;
   
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('TCnInputHelper.HandleKeyUp %d when KeyDownValid %d, ValidKeyQueue %d, IsShowing %d',
-    [Msg.wParam, Integer(GetKeyDownValid), Integer(IsValidKeyQueue), Integer(IsShowing)]);
+//  CnDebugger.LogFmt('TCnInputHelper.HandleKeyUp %d when KeyDownValid %d, ValidKeyQueue %d, IsShowing %d',
+//    [Msg.wParam, Integer(GetKeyDownValid), Integer(IsValidKeyQueue), Integer(IsShowing)]);
 {$ENDIF}
 
   if (GetKeyDownValid or IsValidKeyQueue) and not IsShowing then
@@ -1703,7 +1703,7 @@ begin
     begin
       Inc(FKeyCount);
 {$IFDEF DEBUG}
-      CnDebugger.LogMsg('Input Helper. Inc FKeyCount to ' + IntToStr(FKeyCount));
+//      CnDebugger.LogMsg('Input Helper. Inc FKeyCount to ' + IntToStr(FKeyCount));
 {$ENDIF}
       if IsValidDotKey(Key) or IsValidCppPopupKey(Key, ScanCode) or (FKeyCount >= DispOnlyAtLeastKey) or
         IsValidKeyQueue then
@@ -1715,7 +1715,7 @@ begin
           Timer.Interval := csMinDispDelay;
         Timer.Enabled := True;
 {$IFDEF DEBUG}
-        CnDebugger.LogMsg('Input Helper. Key Count Reached or Popup Key Meet. Enable Timer.');
+//        CnDebugger.LogMsg('Input Helper. Key Count Reached or Popup Key Meet. Enable Timer.');
 {$ENDIF}
       end;
     end;
@@ -1845,23 +1845,23 @@ begin
 {$IFDEF DEBUG}
   with FPosInfo do
     if FPosInfo.IsPascal then
-      CnDebugger.LogMsg(
-        'TokenID: ' + GetEnumName(TypeInfo(TTokenKind), Ord(TokenID)) + #13#10 +
-        ' AreaKind: ' + GetEnumName(TypeInfo(TCodeAreaKind), Ord(AreaKind)) + #13#10 +
-        ' PosKind: ' + GetEnumName(TypeInfo(TCodePosKind), Ord(PosKind)) + #13#10 +
-        ' LineNumber: ' + IntToStr(LineNumber) + #13#10 +
-        ' LinePos: ' + IntToStr(LinePos) + #13#10 +
-        ' LastToken: ' + GetEnumName(TypeInfo(TTokenKind), Ord(LastNoSpace)) + #13#10 +
-        ' Token: ' + string(Token))
+//      CnDebugger.LogMsg(
+//        'TokenID: ' + GetEnumName(TypeInfo(TTokenKind), Ord(TokenID)) + #13#10 +
+//        ' AreaKind: ' + GetEnumName(TypeInfo(TCodeAreaKind), Ord(AreaKind)) + #13#10 +
+//        ' PosKind: ' + GetEnumName(TypeInfo(TCodePosKind), Ord(PosKind)) + #13#10 +
+//        ' LineNumber: ' + IntToStr(LineNumber) + #13#10 +
+//        ' LinePos: ' + IntToStr(LinePos) + #13#10 +
+//        ' LastToken: ' + GetEnumName(TypeInfo(TTokenKind), Ord(LastNoSpace)) + #13#10 +
+//        ' Token: ' + string(Token))
     else
-      CnDebugger.LogMsg(
-        'CTokenID: ' + GetEnumName(TypeInfo(TCTokenKind), Ord(CTokenID)) + #13#10 +
-        ' AreaKind: ' + GetEnumName(TypeInfo(TCodeAreaKind), Ord(AreaKind)) + #13#10 +
-        ' PosKind: ' + GetEnumName(TypeInfo(TCodePosKind), Ord(PosKind)) + #13#10 +
-        ' LineNumber: ' + IntToStr(LineNumber) + #13#10 +
-        ' LinePos: ' + IntToStr(LinePos) + #13#10 +
-        ' LastToken: ' + GetEnumName(TypeInfo(TTokenKind), Ord(LastNoSpace)) + #13#10 +
-        ' Token: ' + string(Token));
+//      CnDebugger.LogMsg(
+//        'CTokenID: ' + GetEnumName(TypeInfo(TCTokenKind), Ord(CTokenID)) + #13#10 +
+//        ' AreaKind: ' + GetEnumName(TypeInfo(TCodeAreaKind), Ord(AreaKind)) + #13#10 +
+//        ' PosKind: ' + GetEnumName(TypeInfo(TCodePosKind), Ord(PosKind)) + #13#10 +
+//        ' LineNumber: ' + IntToStr(LineNumber) + #13#10 +
+//        ' LinePos: ' + IntToStr(LinePos) + #13#10 +
+//        ' LastToken: ' + GetEnumName(TypeInfo(TTokenKind), Ord(LastNoSpace)) + #13#10 +
+//        ' Token: ' + string(Token));
 {$ENDIF}
   SymbolListMgr.GetValidCharSet(FirstSet, CharSet, FPosInfo);
   if IsPascalFile then
@@ -1947,7 +1947,7 @@ begin
       CalcCharSet(CharSet, @FPosInfo));
     FMatchStr := Copy(FToken, 1, CurrPos);
 {$IFDEF DEBUG}
-    CnDebugger.TraceFmt('Token %s, Match %s', [FToken, FMatchStr]);
+//    CnDebugger.TraceFmt('Token %s, Match %s', [FToken, FMatchStr]);
 {$ENDIF}
     if ForcePopup or IsValidSymbol(FToken) or (FPosInfo.PosKind in [pkFieldDot
       {$IFDEF SUPPORT_UNITNAME_DOT}, pkIntfUses, pkImplUses{$ENDIF} ]) then
@@ -1974,7 +1974,7 @@ begin
               (CompareStr(FToken, Name) = 0)) then
             begin
 {$IFDEF DEBUG}
-              CnDebugger.LogMsg('Do NOT ShowList for Full Match: ' + Name);
+//              CnDebugger.LogMsg('Do NOT ShowList for Full Match: ' + Name);
 {$ENDIF}
               FKeyCount := DispOnlyAtLeastKey - 1;
               Exit;
@@ -2146,9 +2146,9 @@ begin
           D := 25; // 太小，扩大一点点
 {$ENDIF}
 {$IFDEF DEBUG}
-        CnDebugger.LogRect(ParaWnd.BoundsRect, 'Code Param Window Rect');
-        CnDebugger.LogInteger(EditControlWrapper.GetCharHeight, 'Code Param Window CharHeight');
-        CnDebugger.LogInteger(D, 'Code Param Window Top Offset');
+//        CnDebugger.LogRect(ParaWnd.BoundsRect, 'Code Param Window Rect');
+//        CnDebugger.LogInteger(EditControlWrapper.GetCharHeight, 'Code Param Window CharHeight');
+//        CnDebugger.LogInteger(D, 'Code Param Window Top Offset');
 {$ENDIF}
         OldTop := ParaWnd.Top;
         ParaWnd.Top := List.Top - ParaWnd.Height - D;
@@ -2419,7 +2419,7 @@ begin
       FSymbolReloading := False; // 也恢复标记
     end;
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('UpdateSymbolList. Get Symbols %d.', [FSymbols.Count]);
+//    CnDebugger.LogFmt('UpdateSymbolList. Get Symbols %d.', [FSymbols.Count]);
 {$ENDIF}
   finally
     if HashList <> nil then
@@ -2440,15 +2440,15 @@ begin
   try
     Symbol := UpperCase(FMatchStr);
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('FMatchStr %s. Symbol %s. FLastStr %s.', [FMatchStr, Symbol, FLastStr]);
+//    CnDebugger.LogFmt('FMatchStr %s. Symbol %s. FLastStr %s.', [FMatchStr, Symbol, FLastStr]);
 {$ENDIF}
 
     if (Length(Symbol) > 1) and (Length(Symbol) - Length(FLastStr) = 1) and
       (Pos(UpperCase(FLastStr), Symbol) = 1) then
     begin
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('UpdateCurrList Only Delete from Item List Count %d with Mode %d',
-        [FItems.Count, Ord(FMatchMode)]);
+//      CnDebugger.LogFmt('UpdateCurrList Only Delete from Item List Count %d with Mode %d',
+//        [FItems.Count, Ord(FMatchMode)]);
 {$ENDIF}
       // 如果这次匹配的内容只比上次匹配的内容尾巴上多了个字符，照理只要在上次匹配的结果里删东西就行了
       if FMatchMode = mmStart then
@@ -2488,8 +2488,8 @@ begin
     else  // 不是，则需要重新从总的 FSymbols 里匹配并塞给 FItems
     begin
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('UpdateCurrList Clear and Match from Symbol List Count %d with Mode %d',
-        [FSymbols.Count, Ord(FMatchMode)]);
+//      CnDebugger.LogFmt('UpdateCurrList Clear and Match from Symbol List Count %d with Mode %d',
+//        [FSymbols.Count, Ord(FMatchMode)]);
 {$ENDIF}
       FItems.Clear;
       case FMatchMode of
@@ -2590,7 +2590,7 @@ begin
     or ParsePosInfo and (FPosInfo.PosKind in [pkFieldDot, pkField]) then
   begin
   {$IFDEF DEBUG}
-    CnDebugger.LogFmt('InputHelper UpdateListBox. CurrToken: %s, CurrPos: %d', [FToken, CurrPos]);
+//    CnDebugger.LogFmt('InputHelper UpdateListBox. CurrToken: %s, CurrPos: %d', [FToken, CurrPos]);
   {$ENDIF}
     FMatchStr := Copy(FToken, 1, CurrPos);
     Result := UpdateCurrList(ForcePopup);
@@ -2775,7 +2775,7 @@ begin
       begin
         C := CnOtaGetCurrChar();
 {$IFDEF DEBUG}
-        CnDebugger.LogChar(C, 'Input Helper Char Under Cursor');
+//        CnDebugger.LogChar(C, 'Input Helper Char Under Cursor');
 {$ENDIF}
         if C = '}' then
         begin
@@ -3265,7 +3265,7 @@ begin
     FEnableAutoSymbols := ReadBool('', csEnableAutoSymbols, False);
     FAutoSymbols.CommaText := ReadString('', csAutoSymbols, csDefAutoSymbols);
   {$IFDEF DEBUG}
-    CnDebugger.LogStrings(FAutoSymbols, 'FAutoSymbols');
+//    CnDebugger.LogStrings(FAutoSymbols, 'FAutoSymbols');
   {$ENDIF}
     FSpcComplete := ReadBool('', csSpcComplete, True);
     FTabComplete := ReadBool('', csTabComplete, True);
@@ -3402,14 +3402,14 @@ begin
   begin
     C := VK_ScanCodeToAscii(VKey, Code);
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('IsValidCppPopupKey VK_ScanCodeToAscii: %d %d => %d ("%s")', [VKey, Code, Ord(C), C]);
+//    CnDebugger.LogFmt('IsValidCppPopupKey VK_ScanCodeToAscii: %d %d => %d ("%s")', [VKey, Code, Ord(C), C]);
 {$ENDIF}
     if C = '>' then
     begin
       // 是 >，if 光标下的前一个标识符的最后一位是 -
       CnOtaGetCurrPosToken(AToken, CurrPos, True, CalcFirstSet(FirstSet, FPosInfo.IsPascal), CharSet);
 {$IFDEF DEBUG}
-      CnDebugger.LogMsg('Is Valid Cpp Popup Key: Token: ' + AToken);
+//      CnDebugger.LogMsg('Is Valid Cpp Popup Key: Token: ' + AToken);
 {$ENDIF}
       if (Length(AToken) >= 1) and (AToken[Length(AToken)] = '-') then
       begin
@@ -3477,7 +3477,7 @@ procedure TCnInputHelper.BroadcastShortCut;
 begin
   EventBus.PostEvent(EVENT_INPUTHELPER_POPUP_SHORTCUT_CHANGED, Pointer(GetPopupKey));
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('InputHelper Broadcast ShortCut: ' + ShortCutToText(GetPopupKey));
+//  CnDebugger.LogMsg('InputHelper Broadcast ShortCut: ' + ShortCutToText(GetPopupKey));
 {$ENDIF}
 end;
 
@@ -3497,7 +3497,7 @@ var
       List.Canvas.Font.Size := O;
 
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('Input Helper AdjustListItemHeight. Calc Font Size %d', [S]);
+//      CnDebugger.LogFmt('Input Helper AdjustListItemHeight. Calc Font Size %d', [S]);
 {$ENDIF}
 
       if S > 16 then
@@ -3514,7 +3514,7 @@ var
         List.ItemHeight := S;
 
 {$IFDEF DEBUG}
-        CnDebugger.LogFmt('Input Helper List ItemHeight Changed to %d', [List.ItemHeight]);
+//        CnDebugger.LogFmt('Input Helper List ItemHeight Changed to %d', [List.ItemHeight]);
 {$ENDIF}
       end;
     except
@@ -3527,13 +3527,13 @@ begin
   begin
     S := WizOptions.CalcIntEnlargedValue(WizOptions.SizeEnlarge, FListFont.Size);
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('Input Helper Enlarge Mode. Should Set Font Size to %d', [S]);
+//    CnDebugger.LogFmt('Input Helper Enlarge Mode. Should Set Font Size to %d', [S]);
 {$ENDIF}
     if List.Font.Size <> S then
     begin
       List.Font.Size := S;
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('Input Helper List Font Change Size to %d', [List.Font.Size]);
+//      CnDebugger.LogFmt('Input Helper List Font Change Size to %d', [List.Font.Size]);
 {$ENDIF}
     end;
   end
@@ -3541,7 +3541,7 @@ begin
   begin
     List.Font.Size := FListFont.Size;
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('Input Helper List Font Size Restored to %d', [List.Font.Size]);
+//    CnDebugger.LogFmt('Input Helper List Font Size Restored to %d', [List.Font.Size]);
 {$ENDIF}
   end;
   AdjustListItemHeight;

@@ -159,8 +159,90 @@ var
   {* 是否使用后台线程预处理符号 }
 
 function KibitzCompileThreadRunning: Boolean;
+function KibitzInitialize: Boolean;
 
 {$ENDIF CNWIZARDS_CNINPUTHELPER}
+
+{$IFDEF SUPPORT_KibitzCompile}
+{******************************************************************************}
+{ Code Note:                                                                   }
+{    The code below is derived from GExperts 1.2                               }
+{                                                                              }
+{ Original author:                                                             }
+{    GExperts, Inc  http://www.gexperts.org/                                   }
+{    Erik Berry <eberry@gexperts.org> or <eb@techie.com>                       }
+{******************************************************************************}
+
+type
+  TSymbols = packed array[0..(MaxInt div SizeOf(Integer))-1] of Integer;
+  PSymbols = ^TSymbols;
+  TUnknowns = packed array [0..(MaxInt div SizeOf(Byte))-1] of Byte;
+  PUnknowns = ^TUnknowns;
+  // 这个声明来自 TKibitzResult 记录的 RTTI 信息
+  TKibitzResult = packed record
+  {$IFDEF COMPILER7_UP}
+    KibitzDataArray: array [0..82] of Integer;
+  {$ELSE}
+    KibitzDataArray: array [0..81] of Integer;
+  {$ENDIF}
+  {$IFDEF COMPILER6_UP}
+    KibitzDataStr: string; // RTTI 显示在这个位置有一个 string 变量
+  {$ENDIF}
+    KibitzReserveArray: array[0..255] of Integer; // 再定义一个大数组备用
+  end;
+
+const
+  // dphideXX.bpl
+  // DoKibitzCompile(FileName: AnsiString; XPos, YPos: Integer; var KibitzResult: TKibitzResult);
+{$IFDEF COMPILER7_UP}
+  DoKibitzCompileName = '@Pascodcmplt@DoKibitzCompile$qqrx17System@AnsiStringiir22Comtypes@TKibitzResult';
+{$ELSE}
+  DoKibitzCompileName = '@Codcmplt@DoKibitzCompile$qqrx17System@AnsiStringiir22Comtypes@TKibitzResult';
+{$ENDIF COMPILER7_UP}
+  // dccXX.dll
+  // KibitzGetValidSymbols(var KibitzResult: TKibitzResult; Symbols: PSymbols; Unknowns: PUnknowns; SymbolCount: Integer): Integer; stdcall;
+  KibitzGetValidSymbolsName = 'KibitzGetValidSymbols';
+  // corideXX.bpl
+  // Comdebug.CompGetSymbolText(Symbol: PSymbols; var S: string; Unknown: Word); stdcall;
+  CompGetSymbolTextName = '@Comdebug@CompGetSymbolText$qqsp16Comtypes@TSymbolr17System@AnsiStringus';
+
+type
+  TDoKibitzCompileProc = procedure(FileName: AnsiString; XPos, YPos: Integer;
+    var KibitzResult: TKibitzResult); register;
+
+  TKibitzGetValidSymbolsProc = function(var KibitzResult: TKibitzResult;
+    Symbols: PSymbols; Unknowns: PUnknowns; SymbolCount: Integer): Integer; stdcall;
+
+  TCompGetSymbolTextProc = procedure(Symbol: Integer {Comtypes::TSymbol*};
+    var S: string; Unknown: Word); stdcall;
+
+  TKibitzThread = class(TThread)
+  private
+    FFileName: AnsiString;
+    FX, FY: Integer;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(const FileName: AnsiString; X, Y: Integer);
+    destructor Destroy; override;
+  end;
+
+var
+  DoKibitzCompile: TDoKibitzCompileProc;
+  KibitzGetValidSymbols: TKibitzGetValidSymbolsProc;
+  CompGetSymbolText: TCompGetSymbolTextProc;
+  KibitzEnabled: Boolean;
+
+  KibitzThread: TKibitzThread;
+  HookCS: TRTLCriticalSection;
+  KibitzFinished: Boolean = False;
+  Hook1: TCnMethodHook;
+  Hook2: TCnMethodHook;
+
+  CorIdeModule: HModule;
+  DphIdeModule: HModule;
+  dccModule: HModule;
+{$ENDIF SUPPORT_KibitzCompile}
 
 implementation
 
@@ -229,6 +311,388 @@ var
   BcbLspGetCount: TBcbLSPKibitzManagerGetCount = nil;
   BcbLspGetCodeCompEntry: TBcbLSPKibitzManagerGetCodeCompEntry = nil;
 {$ENDIF}
+
+
+{$IFDEF SUPPORT_KibitzCompile}
+function KibitzInitialize: Boolean;
+begin
+  Result := False;
+  try
+    DphIdeModule := LoadLibrary(DphIdeLibName);
+    CnWizAssert(DphIdeModule <> 0, 'Load DphIdeModule');
+
+    DoKibitzCompile := GetProcAddress(DphIdeModule, DoKibitzCompileName);
+    CnWizAssert(Assigned(DoKibitzCompile), 'Load DoKibitzCompile from DphIdeModule');
+
+    dccModule := LoadLibrary(dccLibName);
+    CnWizAssert(dccModule <> 0, 'Load dccModule');
+
+    KibitzGetValidSymbols := GetProcAddress(dccModule, KibitzGetValidSymbolsName);
+    CnWizAssert(Assigned(KibitzGetValidSymbols), 'Load KibitzGetValidSymbols from dccModule');
+
+    CorIdeModule := LoadLibrary(CorIdeLibName);
+    CnWizAssert(CorIdeModule <> 0, 'Load CorIdeModule');
+
+    CompGetSymbolText := GetProcAddress(CorIdeModule, CompGetSymbolTextName);
+    CnWizAssert(Assigned(CompGetSymbolText), 'Load CompGetSymbolText');
+
+    Result := True;
+  {$IFDEF Debug}
+    CnDebugger.LogMsg('KibitzInitialize succ');
+  {$ENDIF}
+  except
+    on E: Exception do
+      DoHandleException(E.Message);
+  end;
+end;
+
+procedure KibitzFinalize;
+begin
+  if CorIdeModule <> 0 then
+  begin
+    FreeLibrary(CorIdeModule);
+    CorIdeModule := 0;
+  end;
+
+  if dccModule <> 0 then
+  begin
+    FreeLibrary(dccModule);
+    dccModule := 0;
+  end;
+
+  if DphIdeModule <> 0 then
+  begin
+    FreeLibrary(DphIdeModule);
+    DphIdeModule := 0;
+  end;
+end;
+
+procedure FakeDoKibitzCompile(FileName: AnsiString; XPos, YPos: Integer;
+  var KibitzResult: TKibitzResult); register;
+begin
+{$IFDEF Debug}
+  CnDebugger.LogMsg('FakeDoKibitzCompile');
+{$ENDIF}
+  FillChar(KibitzResult.KibitzDataArray, SizeOf(KibitzResult.KibitzDataArray), 0);
+end;
+
+function FakeKibitzGetValidSymbols(var KibitzResult: TKibitzResult;
+  Symbols: PSymbols; Unknowns: PUnknowns; SymbolCount: Integer): Integer; stdcall;
+begin
+{$IFDEF Debug}
+  CnDebugger.LogMsg('FakeKibitzGetValidSymbols');
+{$ENDIF}
+  Result := 0;
+end;
+
+{ TKibitzThread }
+
+constructor TKibitzThread.Create(const FileName: AnsiString; X, Y: Integer);
+begin
+{$IFDEF Debug}
+  CnDebugger.LogMsg('TKibitzThread.Create');
+{$ENDIF}
+  inherited Create(False);
+  FFileName := FileName;
+  FX := X;
+  FY := Y;
+  FreeOnTerminate := True;
+end;
+
+destructor TKibitzThread.Destroy;
+begin
+{$IFDEF Debug}
+  CnDebugger.LogMsg('TKibitzThread.Destroy');
+{$ENDIF}
+  KibitzThread := nil;
+  inherited;
+end;
+
+procedure TKibitzThread.Execute;
+var
+  KibitzResult: TKibitzResult;
+begin
+{$IFDEF Debug}
+  CnDebugger.LogMsg('TKibitzThread.Execute');
+{$ENDIF}
+  try
+    FillChar(KibitzResult, SizeOf(KibitzResult), 0);
+    DoKibitzCompile(FFileName, FX, FY, KibitzResult);
+  finally
+    EnterCriticalSection(HookCS);
+    try
+      KibitzFinished := True;
+      // 调用完成后恢复被 Hook 的函数
+      FreeAndNil(Hook1);
+      FreeAndNil(Hook2);
+    finally
+      LeaveCriticalSection(HookCS);
+    end;
+  end;
+end;
+
+function ParseProjectBegin(var FileName: AnsiString; var X, Y: Integer): Boolean;
+var
+  Stream: TMemoryStream;
+  Lex: TCnGeneralPasLex; // Ansi/Ansi/Utf16
+begin
+{$IFDEF DEBUG}
+  CnDebugger.LogMsg('ParseProjectBegin');
+{$ENDIF}
+
+  Result := False;
+  FileName := CnOtaGetCurrentProjectFileName;
+  Stream := nil;
+  Lex := nil;
+
+  try
+    Stream := TMemoryStream.Create;
+    EditFilerSaveFileToStream(FileName, Stream, True); // Ansi/Ansi/Utf16，符合 Lex
+
+    Lex := TCnGeneralPasLex.Create;
+    Lex.Origin := PChar(Stream.Memory);
+
+    while Lex.TokenID <> tkNull do
+    begin
+      if Lex.TokenID = tkBegin then
+      begin
+        Lex.Next;
+        X := 0;
+{$IFDEF UNICODE}
+        Y := Lex.LineNumber; // Wide 的 Lex 的行号本来就从 1 开始
+{$ELSE}
+        Y := Lex.LineNumber + 1;
+{$ENDIF}
+        Result := True;
+        Break;
+      end;
+      Lex.Next;
+    end;
+  finally
+    Lex.Free;
+    Stream.Free;
+  end;
+end;
+
+procedure InvokeKibitzCompileInThread;
+var
+  Save: TCursor;
+  FileName: AnsiString;
+  X, Y: Integer;
+begin
+{$IFDEF DEBUG}
+  CnDebugger.LogMsg('CreateKibitzThread');
+{$ENDIF}
+  if not SupportKibitzCompileThread or not UseKibitzCompileThread or KibitzCompileThreadRunning then
+    Exit;
+
+  if ParseProjectBegin(FileName, X, Y) then
+  begin
+  {$IFDEF DEBUG}
+    CnDebugger.LogFmt('FileName: %s X: %d Y: %d', [FileName, X, Y]);
+  {$ENDIF}
+
+    Save := Screen.Cursor;
+    KibitzFinished := False;
+    KibitzThread := TKibitzThread.Create(FileName, X, Y);
+    Sleep(50);  // 等待线程运行一会后再 Hook Kibitz 函数
+    Screen.Cursor := Save; // 恢复原来的光标
+
+    EnterCriticalSection(HookCS);
+    try
+      // 确保线程还没有结束前 Hook
+      if not KibitzFinished then
+      begin
+        Hook1 := TCnMethodHook.Create(@DoKibitzCompile, @FakeDoKibitzCompile);
+        Hook2 := TCnMethodHook.Create(@KibitzGetValidSymbols, @FakeKibitzGetValidSymbols);
+      end;
+    finally
+      LeaveCriticalSection(HookCS);
+    end;
+  end;
+end;
+
+procedure TIDESymbolList.OnIdleExecute(Sender: TObject);
+var
+  Tick: Cardinal;
+begin
+  if not SupportKibitzCompileThread or not UseKibitzCompileThread then
+    Exit;
+
+  // 工程切换时等待线程结束
+  Tick := GetTickCount;
+  while KibitzCompileThreadRunning do
+  begin
+    if GetTickCount - Tick > 500 then
+      Break;
+    Sleep(100);
+  end;
+  InvokeKibitzCompileInThread;
+end;
+
+procedure TIDESymbolList.OnFileNotify(NotifyCode: TOTAFileNotification;
+  const FileName: string);
+begin
+  if not SupportKibitzCompileThread or not UseKibitzCompileThread then
+    Exit;
+
+  if (NotifyCode = ofnFileOpened) and IsDpr(FileName) then
+  begin
+  {$IFDEF Debug}
+    CnDebugger.LogFmt('TIDESymbolList.OnFileNotify: %s', [FileName]);
+  {$ENDIF}
+    CnWizNotifierServices.ExecuteOnApplicationIdle(OnIdleExecute);
+  end;
+end;
+
+function TIDESymbolList.Reload_KibitzCompile(Editor: IOTAEditBuffer;
+  const InputText: string; PosInfo: TCodePosInfo): Boolean;
+const
+  csMaxSymbolCount = 32768;
+var
+  KibitzResult: TKibitzResult;
+  SymbolCount: Integer;
+  Unknowns: PUnknowns;
+  Symbols: PSymbols;
+  CharPos: TOTACharPos;
+  Text: string;
+  I, Offset: Integer;
+
+  procedure AddItem(const AText: string; Index: Integer);
+  var
+    Idx, Len: Integer;
+    AName, ADesc: string;
+    AKind: TSymbolKind;
+  begin
+    if Length(AText) > 6 then
+    begin
+      // 判断标识符的类型，简单判断以提高性能
+      case AText[1] of
+        'v':
+          AKind := skVariable;       // 'var '
+        'p':
+          begin
+            if AText[4] = 'c' then   // 'proc '
+              AKind := skProcedure
+            else                     // 'prop '
+              AKind := skProperty;
+          end;
+        'f':
+          AKind := skFunction;       // 'func '
+        't':
+          begin                      // 'type '
+            if Pos(' = class', AText) > 0 then
+              AKind := skClass
+            else if Pos(' = interface', AText) > 0 then
+              AKind := skInterface
+            else
+              AKind := skType;
+          end;
+        'c':
+          AKind := skConstant;       // 'const '
+        'r':
+          AKind := skConstant;       // 'rstrg '
+        '?':
+          AKind := skKeyword;        // '??? '
+      else
+        begin
+        {$IFDEF DEBUG}
+          CnDebugger.LogMsg('Unknown decl: ' + AText);
+        {$ENDIF}
+          AKind := skUnknown;
+        end;
+      end;
+
+      // 取标识符名称
+      Idx := 1;
+      while AText[Idx] <> ' ' do     // 跳过类型声明
+        Inc(Idx);
+      while AText[Idx] = ' ' do      // 跳过空格
+        Inc(Idx);
+      Len := 0;
+      while AText[Idx + Len] in ['a'..'z', 'A'..'Z', '0'..'9', '_'] do
+        Inc(Len);
+      AName := Copy(AText, Idx, Len);
+
+      // 取描述信息
+      while AText[Idx + Len] = ' ' do
+        Inc(Len);
+      ADesc := Copy(AText, Idx + Len, MaxInt);
+
+      // 错误的变量
+      if (AKind = skVariable) and (CompareStr(ADesc, ': erroneous type') = 0) then
+        Exit;
+
+      // 增加新项
+      Add(AName, AKind, Round(MaxInt / SymbolCount * Index), ADesc);
+    end;
+  end;
+
+begin
+  Result := False;
+  if not KibitzEnabled or (PosInfo.PosKind in csNonCodePosKinds)
+    or KibitzCompileThreadRunning then
+    Exit;
+
+  Clear;
+  try
+    FillChar(KibitzResult, SizeOf(KibitzResult), 0);
+    CharPos := CnOtaGetCurrCharPos(nil);
+    if PosInfo.PosKind in [pkClass, pkInterface, pkField] then
+      Offset := -Length(InputText)
+    else
+      Offset := 0;
+
+{$IFDEF DEBUG}
+      CnDebugger.LogMsg( Format( 'TIDESymbolList.Reload, Editor.FileName: %s, CharPos.CharIndex: %d, Offset: %d, CharPos.Line: %d'
+                               , [Editor.FileName, CharPos.CharIndex, Offset, CharPos.Line]
+                               )
+                       );
+{$ENDIF}
+    // 执行符号信息编译
+    DoKibitzCompile(Editor.FileName, CharPos.CharIndex + Offset, CharPos.Line,
+      KibitzResult);
+
+    // 以下代码在 GExperts 中使用，用途未明。使用后会导致某些枚举值出不来，此处禁用
+    //if Byte(KibitzResult.KibitzDataArray[0]) in [$0B, $08, $09] then
+    //  Exit;
+
+    Symbols := nil;
+    Unknowns := nil;
+    try
+      // 分配临时内存
+      GetMem(Symbols, csMaxSymbolCount * SizeOf(Integer));
+      GetMem(Unknowns, csMaxSymbolCount * SizeOf(Byte));
+
+      // 取得有效的符号表及总数
+      SymbolCount := KibitzGetValidSymbols(KibitzResult, Symbols, Unknowns,
+        csMaxSymbolCount);
+
+      // 增加符号项
+      List.Capacity := SymbolCount;
+      for I := 0 to SymbolCount - 1 do
+      begin
+        CompGetSymbolText(Symbols^[I], Text, 1);
+        AddItem(Text, I);
+      end;
+
+      Result := Count > 0;
+{$IFDEF DEBUG}
+      CnDebugger.LogMsg(Format('TIDESymbolList.Reload, Count: %d', [Count]));
+{$ENDIF}
+    finally
+      if Unknowns <> nil then
+        FreeMem(Unknowns);
+      if Symbols <> nil then
+        FreeMem(Symbols);
+    end;
+  except
+    on E: Exception do
+      DoHandleException(E.Message);
+  end;
+end;
+
+{$ENDIF SUPPORT_KibitzCompile}
 
 //==============================================================================
 // 从 IDE 中获得的标识符列表
@@ -742,461 +1206,6 @@ begin
 end;
 
 {$ENDIF SUPPORT_IOTACodeInsightManager}
-
-{$IFDEF SUPPORT_KibitzCompile}
-
-{******************************************************************************}
-{ Code Note:                                                                   }
-{    The code below is derived from GExperts 1.2                               }
-{                                                                              }
-{ Original author:                                                             }
-{    GExperts, Inc  http://www.gexperts.org/                                   }
-{    Erik Berry <eberry@gexperts.org> or <eb@techie.com>                       }
-{******************************************************************************}
-
-type
-  TSymbols = packed array[0..(MaxInt div SizeOf(Integer))-1] of Integer;
-  PSymbols = ^TSymbols;
-  TUnknowns = packed array [0..(MaxInt div SizeOf(Byte))-1] of Byte;
-  PUnknowns = ^TUnknowns;
-  // 这个声明来自 TKibitzResult 记录的 RTTI 信息
-  TKibitzResult = packed record
-  {$IFDEF COMPILER7_UP}
-    KibitzDataArray: array [0..82] of Integer;
-  {$ELSE}
-    KibitzDataArray: array [0..81] of Integer;
-  {$ENDIF}
-  {$IFDEF COMPILER6_UP}
-    KibitzDataStr: string; // RTTI 显示在这个位置有一个 string 变量
-  {$ENDIF}
-    KibitzReserveArray: array[0..255] of Integer; // 再定义一个大数组备用
-  end;
-
-const
-  // dphideXX.bpl
-  // DoKibitzCompile(FileName: AnsiString; XPos, YPos: Integer; var KibitzResult: TKibitzResult);
-{$IFDEF COMPILER7_UP}
-  DoKibitzCompileName = '@Pascodcmplt@DoKibitzCompile$qqrx17System@AnsiStringiir22Comtypes@TKibitzResult';
-{$ELSE}
-  DoKibitzCompileName = '@Codcmplt@DoKibitzCompile$qqrx17System@AnsiStringiir22Comtypes@TKibitzResult';
-{$ENDIF COMPILER7_UP}
-  // dccXX.dll
-  // KibitzGetValidSymbols(var KibitzResult: TKibitzResult; Symbols: PSymbols; Unknowns: PUnknowns; SymbolCount: Integer): Integer; stdcall;
-  KibitzGetValidSymbolsName = 'KibitzGetValidSymbols';
-  // corideXX.bpl
-  // Comdebug.CompGetSymbolText(Symbol: PSymbols; var S: string; Unknown: Word); stdcall;
-  CompGetSymbolTextName = '@Comdebug@CompGetSymbolText$qqsp16Comtypes@TSymbolr17System@AnsiStringus';
-
-type
-  TDoKibitzCompileProc = procedure(FileName: AnsiString; XPos, YPos: Integer;
-    var KibitzResult: TKibitzResult); register;
-
-  TKibitzGetValidSymbolsProc = function(var KibitzResult: TKibitzResult;
-    Symbols: PSymbols; Unknowns: PUnknowns; SymbolCount: Integer): Integer; stdcall;
-
-  TCompGetSymbolTextProc = procedure(Symbol: Integer {Comtypes::TSymbol*};
-    var S: string; Unknown: Word); stdcall;
-
-  TKibitzThread = class(TThread)
-  private
-    FFileName: AnsiString;
-    FX, FY: Integer;
-  protected
-    procedure Execute; override;
-  public
-    constructor Create(const FileName: AnsiString; X, Y: Integer);
-    destructor Destroy; override;
-  end;
-
-var
-  DoKibitzCompile: TDoKibitzCompileProc;
-  KibitzGetValidSymbols: TKibitzGetValidSymbolsProc;
-  CompGetSymbolText: TCompGetSymbolTextProc;
-  KibitzEnabled: Boolean;
-
-  KibitzThread: TKibitzThread;
-  HookCS: TRTLCriticalSection;
-  KibitzFinished: Boolean = False;
-  Hook1: TCnMethodHook;
-  Hook2: TCnMethodHook;
-
-  CorIdeModule: HModule;
-  DphIdeModule: HModule;
-  dccModule: HModule;
-
-function KibitzInitialize: Boolean;
-begin
-  Result := False;
-  try
-    DphIdeModule := LoadLibrary(DphIdeLibName);
-    CnWizAssert(DphIdeModule <> 0, 'Load DphIdeModule');
-
-    DoKibitzCompile := GetProcAddress(DphIdeModule, DoKibitzCompileName);
-    CnWizAssert(Assigned(DoKibitzCompile), 'Load DoKibitzCompile from DphIdeModule');
-
-    dccModule := LoadLibrary(dccLibName);
-    CnWizAssert(dccModule <> 0, 'Load dccModule');
-
-    KibitzGetValidSymbols := GetProcAddress(dccModule, KibitzGetValidSymbolsName);
-    CnWizAssert(Assigned(KibitzGetValidSymbols), 'Load KibitzGetValidSymbols from dccModule');
-
-    CorIdeModule := LoadLibrary(CorIdeLibName);
-    CnWizAssert(CorIdeModule <> 0, 'Load CorIdeModule');
-
-    CompGetSymbolText := GetProcAddress(CorIdeModule, CompGetSymbolTextName);
-    CnWizAssert(Assigned(CompGetSymbolText), 'Load CompGetSymbolText');
-
-    Result := True;
-  {$IFDEF Debug}
-    CnDebugger.LogMsg('KibitzInitialize succ');
-  {$ENDIF}
-  except
-    on E: Exception do
-      DoHandleException(E.Message);
-  end;
-end;
-
-procedure KibitzFinalize;
-begin
-  if CorIdeModule <> 0 then
-  begin
-    FreeLibrary(CorIdeModule);
-    CorIdeModule := 0;
-  end;
-
-  if dccModule <> 0 then
-  begin
-    FreeLibrary(dccModule);
-    dccModule := 0;
-  end;
-
-  if DphIdeModule <> 0 then
-  begin
-    FreeLibrary(DphIdeModule);
-    DphIdeModule := 0;
-  end;
-end;
-
-procedure FakeDoKibitzCompile(FileName: AnsiString; XPos, YPos: Integer;
-  var KibitzResult: TKibitzResult); register;
-begin
-{$IFDEF Debug}
-  CnDebugger.LogMsg('FakeDoKibitzCompile');
-{$ENDIF}
-  FillChar(KibitzResult.KibitzDataArray, SizeOf(KibitzResult.KibitzDataArray), 0);
-end;
-
-function FakeKibitzGetValidSymbols(var KibitzResult: TKibitzResult;
-  Symbols: PSymbols; Unknowns: PUnknowns; SymbolCount: Integer): Integer; stdcall;
-begin
-{$IFDEF Debug}
-  CnDebugger.LogMsg('FakeKibitzGetValidSymbols');
-{$ENDIF}
-  Result := 0;
-end;
-
-{ TKibitzThread }
-
-constructor TKibitzThread.Create(const FileName: AnsiString; X, Y: Integer);
-begin
-{$IFDEF Debug}
-  CnDebugger.LogMsg('TKibitzThread.Create');
-{$ENDIF}
-  inherited Create(False);
-  FFileName := FileName;
-  FX := X;
-  FY := Y;
-  FreeOnTerminate := True;
-end;
-
-destructor TKibitzThread.Destroy;
-begin
-{$IFDEF Debug}
-  CnDebugger.LogMsg('TKibitzThread.Destroy');
-{$ENDIF}
-  KibitzThread := nil;
-  inherited;
-end;
-
-procedure TKibitzThread.Execute;
-var
-  KibitzResult: TKibitzResult;
-begin
-{$IFDEF Debug}
-  CnDebugger.LogMsg('TKibitzThread.Execute');
-{$ENDIF}
-  try
-    FillChar(KibitzResult, SizeOf(KibitzResult), 0);
-    DoKibitzCompile(FFileName, FX, FY, KibitzResult);
-  finally
-    EnterCriticalSection(HookCS);
-    try
-      KibitzFinished := True;
-      // 调用完成后恢复被 Hook 的函数
-      FreeAndNil(Hook1);
-      FreeAndNil(Hook2);
-    finally
-      LeaveCriticalSection(HookCS);
-    end;
-  end;
-end;
-
-function ParseProjectBegin(var FileName: AnsiString; var X, Y: Integer): Boolean;
-var
-  Stream: TMemoryStream;
-  Lex: TCnGeneralPasLex; // Ansi/Ansi/Utf16
-begin
-{$IFDEF DEBUG}
-  CnDebugger.LogMsg('ParseProjectBegin');
-{$ENDIF}
-
-  Result := False;
-  FileName := CnOtaGetCurrentProjectFileName;
-  Stream := nil;
-  Lex := nil;
-
-  try
-    Stream := TMemoryStream.Create;
-    EditFilerSaveFileToStream(FileName, Stream, True); // Ansi/Ansi/Utf16，符合 Lex
-
-    Lex := TCnGeneralPasLex.Create;
-    Lex.Origin := PChar(Stream.Memory);
-
-    while Lex.TokenID <> tkNull do
-    begin
-      if Lex.TokenID = tkBegin then
-      begin
-        Lex.Next;
-        X := 0;
-{$IFDEF UNICODE}
-        Y := Lex.LineNumber; // Wide 的 Lex 的行号本来就从 1 开始
-{$ELSE}
-        Y := Lex.LineNumber + 1;
-{$ENDIF}
-        Result := True;
-        Break;
-      end;
-      Lex.Next;
-    end;
-  finally
-    Lex.Free;
-    Stream.Free;
-  end;
-end;
-
-procedure InvokeKibitzCompileInThread;
-var
-  Save: TCursor;
-  FileName: AnsiString;
-  X, Y: Integer;
-begin
-{$IFDEF DEBUG}
-  CnDebugger.LogMsg('CreateKibitzThread');
-{$ENDIF}
-  if not SupportKibitzCompileThread or not UseKibitzCompileThread or KibitzCompileThreadRunning then
-    Exit;
-
-  if ParseProjectBegin(FileName, X, Y) then
-  begin
-  {$IFDEF DEBUG}
-    CnDebugger.LogFmt('FileName: %s X: %d Y: %d', [FileName, X, Y]);
-  {$ENDIF}
-
-    Save := Screen.Cursor;
-    KibitzFinished := False;
-    KibitzThread := TKibitzThread.Create(FileName, X, Y);
-    Sleep(50);  // 等待线程运行一会后再 Hook Kibitz 函数
-    Screen.Cursor := Save; // 恢复原来的光标
-
-    EnterCriticalSection(HookCS);
-    try
-      // 确保线程还没有结束前 Hook
-      if not KibitzFinished then
-      begin
-        Hook1 := TCnMethodHook.Create(@DoKibitzCompile, @FakeDoKibitzCompile);
-        Hook2 := TCnMethodHook.Create(@KibitzGetValidSymbols, @FakeKibitzGetValidSymbols);
-      end;
-    finally
-      LeaveCriticalSection(HookCS);
-    end;
-  end;
-end;
-
-procedure TIDESymbolList.OnIdleExecute(Sender: TObject);
-var
-  Tick: Cardinal;
-begin
-  if not SupportKibitzCompileThread or not UseKibitzCompileThread then
-    Exit;
-
-  // 工程切换时等待线程结束
-  Tick := GetTickCount;
-  while KibitzCompileThreadRunning do
-  begin
-    if GetTickCount - Tick > 500 then
-      Break;
-    Sleep(100);
-  end;
-  InvokeKibitzCompileInThread;
-end;
-
-procedure TIDESymbolList.OnFileNotify(NotifyCode: TOTAFileNotification;
-  const FileName: string);
-begin
-  if not SupportKibitzCompileThread or not UseKibitzCompileThread then
-    Exit;
-
-  if (NotifyCode = ofnFileOpened) and IsDpr(FileName) then
-  begin
-  {$IFDEF Debug}
-    CnDebugger.LogFmt('TIDESymbolList.OnFileNotify: %s', [FileName]);
-  {$ENDIF}
-    CnWizNotifierServices.ExecuteOnApplicationIdle(OnIdleExecute);
-  end;
-end;
-
-function TIDESymbolList.Reload_KibitzCompile(Editor: IOTAEditBuffer;
-  const InputText: string; PosInfo: TCodePosInfo): Boolean;
-const
-  csMaxSymbolCount = 32768;
-var
-  KibitzResult: TKibitzResult;
-  SymbolCount: Integer;
-  Unknowns: PUnknowns;
-  Symbols: PSymbols;
-  CharPos: TOTACharPos;
-  Text: string;
-  I, Offset: Integer;
-
-  procedure AddItem(const AText: string; Index: Integer);
-  var
-    Idx, Len: Integer;
-    AName, ADesc: string;
-    AKind: TSymbolKind;
-  begin
-    if Length(AText) > 6 then
-    begin
-      // 判断标识符的类型，简单判断以提高性能
-      case AText[1] of
-        'v':
-          AKind := skVariable;       // 'var '
-        'p':
-          begin
-            if AText[4] = 'c' then   // 'proc '
-              AKind := skProcedure
-            else                     // 'prop '
-              AKind := skProperty;
-          end;
-        'f':
-          AKind := skFunction;       // 'func '
-        't':
-          begin                      // 'type '
-            if Pos(' = class', AText) > 0 then
-              AKind := skClass
-            else if Pos(' = interface', AText) > 0 then
-              AKind := skInterface
-            else
-              AKind := skType;
-          end;
-        'c':
-          AKind := skConstant;       // 'const '
-        'r':
-          AKind := skConstant;       // 'rstrg '
-        '?':
-          AKind := skKeyword;        // '??? '
-      else
-        begin
-        {$IFDEF DEBUG}
-          CnDebugger.LogMsg('Unknown decl: ' + AText);
-        {$ENDIF}
-          AKind := skUnknown;
-        end;
-      end;
-
-      // 取标识符名称
-      Idx := 1;
-      while AText[Idx] <> ' ' do     // 跳过类型声明
-        Inc(Idx);
-      while AText[Idx] = ' ' do      // 跳过空格
-        Inc(Idx);
-      Len := 0;
-      while AText[Idx + Len] in ['a'..'z', 'A'..'Z', '0'..'9', '_'] do
-        Inc(Len);
-      AName := Copy(AText, Idx, Len);
-
-      // 取描述信息
-      while AText[Idx + Len] = ' ' do
-        Inc(Len);
-      ADesc := Copy(AText, Idx + Len, MaxInt);
-
-      // 错误的变量
-      if (AKind = skVariable) and (CompareStr(ADesc, ': erroneous type') = 0) then
-        Exit;
-
-      // 增加新项
-      Add(AName, AKind, Round(MaxInt / SymbolCount * Index), ADesc);
-    end;
-  end;
-
-begin
-  Result := False;
-  if not KibitzEnabled or (PosInfo.PosKind in csNonCodePosKinds)
-    or KibitzCompileThreadRunning then
-    Exit;
-
-  Clear;
-  try
-    FillChar(KibitzResult, SizeOf(KibitzResult), 0);
-    CharPos := CnOtaGetCurrCharPos(nil);
-    if PosInfo.PosKind in [pkClass, pkInterface, pkField] then
-      Offset := -Length(InputText)
-    else
-      Offset := 0;
-
-    // 执行符号信息编译
-    DoKibitzCompile(Editor.FileName, CharPos.CharIndex + Offset, CharPos.Line,
-      KibitzResult);
-
-    // 以下代码在 GExperts 中使用，用途未明。使用后会导致某些枚举值出不来，此处禁用
-    //if Byte(KibitzResult.KibitzDataArray[0]) in [$0B, $08, $09] then
-    //  Exit;
-
-    Symbols := nil;
-    Unknowns := nil;
-    try
-      // 分配临时内存
-      GetMem(Symbols, csMaxSymbolCount * SizeOf(Integer));
-      GetMem(Unknowns, csMaxSymbolCount * SizeOf(Byte));
-
-      // 取得有效的符号表及总数
-      SymbolCount := KibitzGetValidSymbols(KibitzResult, Symbols, Unknowns,
-        csMaxSymbolCount);
-
-      // 增加符号项
-      List.Capacity := SymbolCount;
-      for I := 0 to SymbolCount - 1 do
-      begin
-        CompGetSymbolText(Symbols^[I], Text, 1);
-        AddItem(Text, I);
-      end;
-
-      Result := Count > 0;
-{$IFDEF DEBUG}
-      CnDebugger.LogMsg(Format('TIDESymbolList.Reload, Count: %d', [Count]));
-{$ENDIF}
-    finally
-      if Unknowns <> nil then
-        FreeMem(Unknowns);
-      if Symbols <> nil then
-        FreeMem(Symbols);
-    end;
-  except
-    on E: Exception do
-      DoHandleException(E.Message);
-  end;
-end;
-
-{$ENDIF SUPPORT_KibitzCompile}
 
 function KibitzCompileThreadRunning: Boolean;
 begin

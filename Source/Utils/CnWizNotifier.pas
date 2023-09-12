@@ -547,7 +547,7 @@ begin
   inherited Create;
   FNotifierServices := ANotifierServices;
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnWizIdeNotifier.Create succeed');
+//  CnDebugger.LogMsg('TCnWizIdeNotifier.Create succeed');
 {$ENDIF}
 end;
 
@@ -606,7 +606,7 @@ begin
   OpenedNotified := False;
   ClosingNotified := False;
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnSourceEditorNotifier.Create succeed');
+//  CnDebugger.LogMsg('TCnSourceEditorNotifier.Create succeed');
 {$ENDIF}
 end;
 
@@ -615,29 +615,29 @@ var
   idx: Integer;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogEnter('TCnSourceEditorNotifier.Destroy');
+//  CnDebugger.LogEnter('TCnSourceEditorNotifier.Destroy');
 {$ENDIF}
   NoRefCount(SourceEditor) := nil;
   with FNotifierServices.FSourceEditorIntfs do
   begin
     idx := IndexOf(Self);
   {$IFDEF DEBUG}
-    CnDebugger.LogInteger(idx, 'IndexOf TCnSourceEditorNotifier');
+//    CnDebugger.LogInteger(idx, 'IndexOf TCnSourceEditorNotifier');
   {$ENDIF}
     if idx >= 0 then
       Delete(idx);
   end;
   inherited;
 {$IFDEF DEBUG}
-  CnDebugger.LogLeave('TCnSourceEditorNotifier.Destroy');
+//  CnDebugger.LogLeave('TCnSourceEditorNotifier.Destroy');
 {$ENDIF}
 end;
 
 procedure TCnSourceEditorNotifier.Destroyed;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnSourceEditorNotifier.Destroyed: ' + SourceEditor.FileName);
-  CnDebugger.LogInteger(SourceEditor.EditViewCount, 'TCnSourceEditorNotifier ViewCount');
+//  CnDebugger.LogMsg('TCnSourceEditorNotifier.Destroyed: ' + SourceEditor.FileName);
+//  CnDebugger.LogInteger(SourceEditor.EditViewCount, 'TCnSourceEditorNotifier ViewCount');
 {$ENDIF}
   if not ClosingNotified then
   begin
@@ -661,8 +661,8 @@ procedure TCnSourceEditorNotifier.ViewNotification(const View: IOTAEditView;
   Operation: TOperation);
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('ViewNotification: %s, %s', [SourceEditor.FileName,
-    GetEnumName(TypeInfo(TOperation), Ord(Operation))]);
+//  CnDebugger.LogFmt('ViewNotification: %s, %s', [SourceEditor.FileName,
+//    GetEnumName(TypeInfo(TOperation), Ord(Operation))]);
 {$ENDIF}
   if not OpenedNotified and (Operation = opInsert) then
   begin
@@ -690,7 +690,7 @@ begin
   FNotifierServices := ANotifierServices;
   ClosingNotified := False;
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnFormEditorNotifier.Create succeed');
+//  CnDebugger.LogMsg('TCnFormEditorNotifier.Create succeed');
 {$ENDIF}
 end;
 
@@ -699,28 +699,28 @@ var
   idx: Integer;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogEnter('TCnFormEditorNotifier.Destroy');
+//  CnDebugger.LogEnter('TCnFormEditorNotifier.Destroy');
 {$ENDIF}
   NoRefCount(FormEditor) := nil;
   with FNotifierServices.FFormEditorIntfs do
   begin
     idx := IndexOf(Self);
   {$IFDEF DEBUG}
-    CnDebugger.LogInteger(idx, 'Index');
+//    CnDebugger.LogInteger(idx, 'Index');
   {$ENDIF}
     if idx >= 0 then
       Delete(idx);
   end;
   inherited;
 {$IFDEF DEBUG}
-  CnDebugger.LogLeave('TCnFormEditorNotifier.Destroy');
+//  CnDebugger.LogLeave('TCnFormEditorNotifier.Destroy');
 {$ENDIF}
 end;
 
 procedure TCnFormEditorNotifier.Destroyed;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnFormEditorNotifier.Destroyed: ' + FormEditor.FileName);
+//  CnDebugger.LogMsg('TCnFormEditorNotifier.Destroyed: ' + FormEditor.FileName);
 {$ENDIF}
   if not ClosingNotified then
   begin
@@ -926,7 +926,7 @@ begin
   FLastControl := nil;
   FLastForm := nil;
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnWizNotifierServices.Create succeed');
+//  CnDebugger.LogMsg('TCnWizNotifierServices.Create succeed');
 {$ENDIF}
 end;
 
@@ -946,7 +946,7 @@ var
 {$ENDIF}
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogEnter('TCnWizNotifierServices.Destroy');
+//  CnDebugger.LogEnter('TCnWizNotifierServices.Destroy');
 {$ENDIF}
   UnhookWindowsHookEx(CallWndProcHook);
   CallWndProcHook := 0;
@@ -1001,7 +1001,7 @@ begin
   ClearAndFreeList(FIdleMethods);
 
 {$IFDEF DEBUG}
-  CnDebugger.LogInteger(FFormEditorIntfs.Count, 'Remove FormEditorNotifiers');
+//  CnDebugger.LogInteger(FFormEditorIntfs.Count, 'Remove FormEditorNotifiers');
 {$ENDIF}
   for I := FFormEditorIntfs.Count - 1 downto 0 do
   begin
@@ -1010,7 +1010,7 @@ begin
       if Assigned(FormEditor) then
       begin
         {$IFDEF DEBUG}
-          CnDebugger.LogMsg('Form: ' + FormEditor.FileName);
+//          CnDebugger.LogMsg('Form: ' + FormEditor.FileName);
         {$ENDIF}
           FormEditor.RemoveNotifier(NotifierIndex);
       end;
@@ -1019,7 +1019,7 @@ begin
   FreeAndNil(FFormEditorIntfs);
 
 {$IFDEF DEBUG}
-  CnDebugger.LogInteger(FSourceEditorIntfs.Count, 'Remove SourceEditorNotifiers');
+//  CnDebugger.LogInteger(FSourceEditorIntfs.Count, 'Remove SourceEditorNotifiers');
 {$ENDIF}
   for I := FSourceEditorIntfs.Count - 1 downto 0 do
   begin
@@ -1028,7 +1028,7 @@ begin
       if Assigned(SourceEditor) then
       begin
         {$IFDEF DEBUG}
-          CnDebugger.LogMsg('Source: ' + SourceEditor.FileName);
+//          CnDebugger.LogMsg('Source: ' + SourceEditor.FileName);
         {$ENDIF}
           SourceEditor.RemoveNotifier(NotifierIndex);
       end;
@@ -1038,7 +1038,7 @@ begin
 
   inherited;
 {$IFDEF DEBUG}
-  CnDebugger.LogLeave('TCnWizNotifierServices.Destroy');
+//  CnDebugger.LogLeave('TCnWizNotifierServices.Destroy');
 {$ENDIF}
 end;
 
@@ -1134,8 +1134,8 @@ var
   I: Integer;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('FileNotification: %s (%s)',
-    [GetEnumName(TypeInfo(TOTAFileNotification), Ord(NotifyCode)), FileName]);
+//  CnDebugger.LogFmt('FileNotification: %s (%s)',
+//    [GetEnumName(TypeInfo(TOTAFileNotification), Ord(NotifyCode)), FileName]);
 {$ENDIF}
 
   if Trim(FileName) = '' then
@@ -1161,8 +1161,8 @@ begin
     {$IFDEF DEBUG}
       if not IdeClosing then
       begin
-        CnDebugger.LogSeparator;
-        CnDebugger.LogMsg('Ide is closing');
+//        CnDebugger.LogSeparator;
+//        CnDebugger.LogMsg('Ide is closing');
       end;
     {$ENDIF}
       IdeClosing := True;
@@ -1228,8 +1228,8 @@ var
   I: Integer;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('AfterCompile: Succedded: %d IsCodeInsight: %d',
-    [Integer(Succeeded), Integer(IsCodeInsight)]);
+//  CnDebugger.LogFmt('AfterCompile: Succedded: %d IsCodeInsight: %d',
+//    [Integer(Succeeded), Integer(IsCodeInsight)]);
 {$ENDIF}
   if GetCurrentThreadId <> MainThreadID then
     Exit;
@@ -1256,11 +1256,11 @@ var
 begin
 {$IFDEF DEBUG}
   if Project = nil then
-    CnDebugger.LogFmt('BeforeCompile: Project is nil. IsCodeInsight: %d',
-      [Integer(IsCodeInsight)])
+//    CnDebugger.LogFmt('BeforeCompile: Project is nil. IsCodeInsight: %d',
+//      [Integer(IsCodeInsight)])
   else
-    CnDebugger.LogFmt('BeforeCompile: %s IsCodeInsight: %d',
-      [Project.FileName, Integer(IsCodeInsight)]);
+//    CnDebugger.LogFmt('BeforeCompile: %s IsCodeInsight: %d',
+//      [Project.FileName, Integer(IsCodeInsight)]);
 {$ENDIF}
   if not IsCodeInsight then
     FCurrentCompilingProject := Project;
@@ -1302,9 +1302,9 @@ var
   I: Integer;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('SourceEditorNotifier: %s (%s)',
-    [GetEnumName(TypeInfo(TCnWizSourceEditorNotifyType), Ord(NotifyType)),
-    SourceEditor.FileName]);
+//  CnDebugger.LogFmt('SourceEditorNotifier: %s (%s)',
+//    [GetEnumName(TypeInfo(TCnWizSourceEditorNotifyType), Ord(NotifyType)),
+//    SourceEditor.FileName]);
 {$ENDIF}
   if FSourceEditorNotifiers <> nil then
   begin
@@ -1386,14 +1386,14 @@ begin
         if NotifyCode = ofnFileOpened then
         begin
         {$IFDEF DEBUG}
-          CnDebugger.LogMsg('SourceEditorOpened');
+//          CnDebugger.LogMsg('SourceEditorOpened');
         {$ENDIF}
           SourceEditorOpened(SourceEditor, False);
         end
         else
         begin
         {$IFDEF DEBUG}
-          CnDebugger.LogMsg('SourceEditorClosing');
+//          CnDebugger.LogMsg('SourceEditorClosing');
         {$ENDIF}
           SourceEditorNotify(SourceEditor, setClosing);
           for J := 0 to FSourceEditorIntfs.Count - 1 do
@@ -1401,7 +1401,7 @@ begin
               SourceEditor then
             begin
             {$IFDEF DEBUG}
-              CnDebugger.LogMsg('Remove SourceEditorNotifier in FileNotification');
+//              CnDebugger.LogMsg('Remove SourceEditorNotifier in FileNotification');
             {$ENDIF}
               TCnSourceEditorNotifier(FSourceEditorIntfs[J]).ClosingNotified := True;
               Break;
@@ -1434,9 +1434,9 @@ var
   I: Integer;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('FormEditorNotify: %s (%s)',
-   [GetEnumName(TypeInfo(TCnWizFormEditorNotifyType),
-    Ord(NotifyType)), FormEditor.FileName]);
+//  CnDebugger.LogFmt('FormEditorNotify: %s (%s)',
+//   [GetEnumName(TypeInfo(TCnWizFormEditorNotifyType),
+//    Ord(NotifyType)), FormEditor.FileName]);
 {$ENDIF}
   if FFormEditorNotifiers <> nil then
   begin
@@ -1491,7 +1491,7 @@ begin
       NotifyObj.NewName := NewName;
       FCompNotifyList.Add(NotifyObj);
   {$IFDEF DEBUG}
-      CnDebugger.LogFmt('Component DelayCreated: %s --> %s.', [OldName, NewName]);
+//      CnDebugger.LogFmt('Component DelayCreated: %s --> %s.', [OldName, NewName]);
   {$ENDIF}
       Exit;
     end
@@ -1500,7 +1500,7 @@ begin
     else
       NotifyType := fetComponentRenamed;
   {$IFDEF DEBUG}
-    CnDebugger.LogFmt('Component renamed: %s --> %s. NotifyType %d', [OldName, NewName, Integer(NotifyType)]);
+//    CnDebugger.LogFmt('Component renamed: %s --> %s. NotifyType %d', [OldName, NewName, Integer(NotifyType)]);
   {$ENDIF}
 
     for I := FFormEditorNotifiers.Count - 1 downto 0 do
@@ -1588,7 +1588,7 @@ begin
         if not Exists then
         begin
         {$IFDEF DEBUG}
-          CnDebugger.LogMsg('New FormEditor found: ' + FormEditor.FileName);
+//          CnDebugger.LogMsg('New FormEditor found: ' + FormEditor.FileName);
         {$ENDIF}
           FormEditorOpened(FormEditor);
         end;
@@ -1621,14 +1621,14 @@ begin
         if NotifyCode = ofnFileOpened then
         begin
         {$IFDEF DEBUG}
-          CnDebugger.LogMsg('FormEditorOpened');
+//          CnDebugger.LogMsg('FormEditorOpened');
         {$ENDIF}
           FormEditorOpened(FormEditor);
         end
         else
         begin
         {$IFDEF DEBUG}
-          CnDebugger.LogMsg('FormEditorClosing');
+//          CnDebugger.LogMsg('FormEditorClosing');
         {$ENDIF}
           FormEditorNotify(FormEditor, fetClosing);
           for J := 0 to FFormEditorIntfs.Count - 1 do
@@ -1636,7 +1636,7 @@ begin
               FormEditor then
             begin
             {$IFDEF DEBUG}
-              CnDebugger.LogMsg('Remove FormEditorNotifier in FileNotification');
+//              CnDebugger.LogMsg('Remove FormEditorNotifier in FileNotification');
             {$ENDIF}
               TCnFormEditorNotifier(FFormEditorIntfs[J]).ClosingNotified := True;
               Break;
@@ -1840,8 +1840,8 @@ var
 begin
 {$IFDEF DEBUG}
   if (EventType <> aeHint) and (EventType <> aeShowHint) then // ±‹√‚¥Ú”°Ã´∂‡
-    CnDebugger.LogFmt('AppEventNotify: %s',
-      [GetEnumName(TypeInfo(TCnWizAppEventType), Ord(EventType))]);
+//    CnDebugger.LogFmt('AppEventNotify: %s',
+//      [GetEnumName(TypeInfo(TCnWizAppEventType), Ord(EventType))]);
 {$ENDIF}
   if not IdeClosing and (FAppEventNotifiers <> nil) then
   begin
@@ -2020,7 +2020,7 @@ begin
   if FBreakpointAddedNotifiers <> nil then
   begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnWizDebuggerNotifier.Breakpoint Added');
+//  CnDebugger.LogMsg('TCnWizDebuggerNotifier.Breakpoint Added');
 {$ENDIF}
     for I := FBreakpointAddedNotifiers.Count - 1 downto 0 do
     try
@@ -2040,7 +2040,7 @@ begin
   if FBreakpointDeletedNotifiers <> nil then
   begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnWizDebuggerNotifier.Breakpoint Deleted');
+//  CnDebugger.LogMsg('TCnWizDebuggerNotifier.Breakpoint Deleted');
 {$ENDIF}
     for I := FBreakpointDeletedNotifiers.Count - 1 downto 0 do
     try
@@ -2059,7 +2059,7 @@ begin
   if FProcessCreatedNotifiers <> nil then
   begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnWizDebuggerNotifier.Process Created');
+//  CnDebugger.LogMsg('TCnWizDebuggerNotifier.Process Created');
 {$ENDIF}
     for I := FProcessCreatedNotifiers.Count - 1 downto 0 do
     try
@@ -2078,7 +2078,7 @@ begin
   if FProcessDestroyedNotifiers <> nil then
   begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnWizDebuggerNotifier.Process Destroyed');
+//  CnDebugger.LogMsg('TCnWizDebuggerNotifier.Process Destroyed');
 {$ENDIF}
     for I := FProcessDestroyedNotifiers.Count - 1 downto 0 do
     try
@@ -2145,7 +2145,7 @@ begin
   if FAfterThemeChangeNotifiers <> nil then
   begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnWizNotifierServices.DoAfterThemeChange');
+//  CnDebugger.LogMsg('TCnWizNotifierServices.DoAfterThemeChange');
 {$ENDIF}
     for I := FAfterThemeChangeNotifiers.Count - 1 downto 0 do
     try
@@ -2164,7 +2164,7 @@ begin
   if FBeforeThemeChangeNotifiers <> nil then
   begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnWizNotifierServices.DoBeforeThemeChange');
+//  CnDebugger.LogMsg('TCnWizNotifierServices.DoBeforeThemeChange');
 {$ENDIF}
     for I := FBeforeThemeChangeNotifiers.Count - 1 downto 0 do
     try
@@ -2183,7 +2183,7 @@ begin
   inherited Create;
   FNotifierServices := ANotifierServices;
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnWizDebuggerNotifier.Create succeed');
+//  CnDebugger.LogMsg('TCnWizDebuggerNotifier.Create succeed');
 {$ENDIF}
 end;
 
@@ -2275,13 +2275,13 @@ initialization
 
 finalization
 {$IFDEF DEBUG}
-  CnDebugger.LogEnter('CnWizNotifier finalization.');
+//  CnDebugger.LogEnter('CnWizNotifier finalization.');
 {$ENDIF}
 
   FreeCnWizNotifierServices;
 
 {$IFDEF DEBUG}
-  CnDebugger.LogLeave('CnWizNotifier finalization.');
+//  CnDebugger.LogLeave('CnWizNotifier finalization.');
 {$ENDIF}
 end.
 

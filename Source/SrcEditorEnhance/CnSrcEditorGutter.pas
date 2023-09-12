@@ -360,7 +360,7 @@ begin
     if ChangeType * [ctView, ctFont, ctOptionChanged] <> [] then
     begin
 {$IFDEF DEBUG}
-      CnDebugger.LogMsg('SrcEditorGutter.EditorChanged for View/Font/Option. Update Line Height');
+//      CnDebugger.LogMsg('SrcEditorGutter.EditorChanged for View/Font/Option. Update Line Height');
 {$ENDIF}
       OldHeight := FLineHeight;
       FLineHeight := EditControlWrapper.GetEditControlCharHeight(FEditControl);
@@ -668,7 +668,7 @@ var
   Pt: TPoint;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnSrcEditorGutter.DoubleClick. Cancel SelectLine Timer.');
+//  CnDebugger.LogMsg('TCnSrcEditorGutter.DoubleClick. Cancel SelectLine Timer.');
 {$ENDIF}
 
   FSelectLineTimer.Enabled := False;
@@ -984,8 +984,8 @@ begin
         if FEndLine >= 0 then
         begin
 {$IFDEF DEBUG}
-          CnDebugger.LogFmt('TCnSrcEditorGutter.MouseMove: Select From Line %d to %d.',
-            [FStartLine, FEndLine]);
+//          CnDebugger.LogFmt('TCnSrcEditorGutter.MouseMove: Select From Line %d to %d.',
+//            [FStartLine, FEndLine]);
 {$ENDIF}
 
           View := CnOtaGetTopMostEditView;
@@ -1052,7 +1052,7 @@ begin
   if Button = mbLeft then
   begin
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('TCnSrcEditorGutter.MouseDown');
+//    CnDebugger.LogMsg('TCnSrcEditorGutter.MouseDown');
 {$ENDIF}
 
     Pt.x := X;
@@ -1076,7 +1076,7 @@ begin
   if Button = mbLeft then
   begin
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('TCnSrcEditorGutter.MouseUp');
+//    CnDebugger.LogMsg('TCnSrcEditorGutter.MouseUp');
 {$ENDIF}
 
     FMouseDown := False;
@@ -1089,7 +1089,7 @@ procedure TCnSrcEditorGutter.Click;
 begin
   inherited;
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnSrcEditorGutter.Click');
+//  CnDebugger.LogMsg('TCnSrcEditorGutter.Click');
 {$ENDIF}
 
   if not FDragging then
@@ -1100,7 +1100,7 @@ begin
       if FGutterMgr.ClickSelectLine and (FStartLine > -1) then
       begin
 {$IFDEF DEBUG}
-        CnDebugger.LogMsg('TCnSrcEditorGutter.Click. May Start Timer.');
+//        CnDebugger.LogMsg('TCnSrcEditorGutter.Click. May Start Timer.');
 {$ENDIF}
         if FGutterMgr.DblClickToggleBookmark then // 有双击切换书签时要延时一小会儿
           FSelectLineTimer.Enabled := True
@@ -1125,7 +1125,7 @@ end;
 procedure TCnSrcEditorGutter.OnSelectLineTimer(Sender: TObject);
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnSrcEditorGutter.OnSelectLineTimer. Timer Triggered to Select Line.');
+//  CnDebugger.LogMsg('TCnSrcEditorGutter.OnSelectLineTimer. Timer Triggered to Select Line.');
 {$ENDIF}
 
   if FGutterMgr.ClickSelectLine and (FStartLine > -1) then
@@ -1440,7 +1440,7 @@ begin
     end;
 
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('TCnIdentReceiver OnEvent. %d Lines should Paint.', [FGutter.FIdentLines.Count]);
+//    CnDebugger.LogFmt('TCnIdentReceiver OnEvent. %d Lines should Paint.', [FGutter.FIdentLines.Count]);
 {$ENDIF}
 
     FTimer.Enabled := False;

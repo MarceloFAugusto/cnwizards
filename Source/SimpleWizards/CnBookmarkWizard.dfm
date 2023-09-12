@@ -16,7 +16,7 @@ inherited CnBookmarkForm: TCnBookmarkForm
   object ToolBar: TToolBar
     Left = 0
     Top = 0
-    Width = 507
+    Width = 499
     Height = 30
     AutoSize = True
     BorderWidth = 2
@@ -111,8 +111,8 @@ inherited CnBookmarkForm: TCnBookmarkForm
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 377
-    Width = 507
+    Top = 365
+    Width = 499
     Height = 19
     Panels = <>
     ParentFont = True
@@ -122,15 +122,15 @@ inherited CnBookmarkForm: TCnBookmarkForm
   object Panel1: TPanel
     Left = 0
     Top = 30
-    Width = 507
-    Height = 347
+    Width = 499
+    Height = 335
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
     object Splitter: TSplitter
       Left = 0
-      Top = 243
-      Width = 507
+      Top = 231
+      Width = 499
       Height = 5
       Cursor = crVSplit
       Align = alBottom
@@ -141,8 +141,8 @@ inherited CnBookmarkForm: TCnBookmarkForm
     object ListView: TListView
       Left = 0
       Top = 0
-      Width = 507
-      Height = 243
+      Width = 499
+      Height = 231
       Align = alClient
       Columns = <
         item
@@ -173,8 +173,8 @@ inherited CnBookmarkForm: TCnBookmarkForm
     end
     object mmoPreview: TMemo
       Left = 0
-      Top = 248
-      Width = 507
+      Top = 236
+      Width = 499
       Height = 99
       Align = alBottom
       Constraints.MinHeight = 30
@@ -203,8 +203,6 @@ inherited CnBookmarkForm: TCnBookmarkForm
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = []
-    MinFontSize = 0
-    MaxFontSize = 0
     Left = 56
     Top = 326
   end

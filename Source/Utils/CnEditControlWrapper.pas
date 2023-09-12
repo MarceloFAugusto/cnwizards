@@ -1018,12 +1018,12 @@ begin
     FPaintLineHook := TCnMethodHook.Create(@PaintLine, @MyPaintLine);
 
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('EditControl.PaintLine Hooked');
+//    CnDebugger.LogMsg('EditControl.PaintLine Hooked');
 {$ENDIF}
 
     FSetEditViewHook := TCnMethodHook.Create(@SetEditView, @MySetEditView);
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('EditControl.SetEditView Hooked');
+//    CnDebugger.LogMsg('EditControl.SetEditView Hooked');
 {$ENDIF}
 
     FPaintNotifyAvailable := True;
@@ -1051,7 +1051,7 @@ begin
   begin
     AddEditor(EditControl, View);
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('TCnEditControlWrapper: New EditControl.');
+//    CnDebugger.LogMsg('TCnEditControlWrapper: New EditControl.');
   {$ENDIF}
   end;
 end;
@@ -1072,7 +1072,7 @@ begin
     FEditorList.Delete(Idx);
     DoEditControlNotify(EditControl, opRemove);
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('TCnEditControlWrapper: EditControl Removed.');
+//    CnDebugger.LogMsg('TCnEditControlWrapper: EditControl Removed.');
   {$ENDIF}
   end;
 end;
@@ -1161,7 +1161,7 @@ var
   I, Idx, LineCount: Integer;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnEditControlWrapper.CheckViewLinesChange');
+//  CnDebugger.LogMsg('TCnEditControlWrapper.CheckViewLinesChange');
 {$ENDIF}
   Result := False;
   FCmpLines.Clear;
@@ -1201,7 +1201,7 @@ begin
     for I := 0 to FCmpLines.Count - 1 do
       Editor.FLines[I] := FCmpLines[I];
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('Lines Changed');
+//    CnDebugger.LogMsg('Lines Changed');
   {$ENDIF}
   end;
 
@@ -1245,7 +1245,7 @@ begin
     Editor.FLastValid := True;
   except
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('GetEditorContext Error');
+//    CnDebugger.LogMsg('GetEditorContext Error');
   {$ENDIF}
   {$IFDEF BDS}
     // BDS 下，时常出现 EditView 已经被释放而导致出错的情况，此处将其置 nil
@@ -1521,8 +1521,8 @@ var
     if TM.tmHeight + TM.tmExternalLeading > FCharSize.cy then
     begin
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('TextMetrics tmHeight %d + ExternalLeading %d > Cy %d. Increase.',
-        [TM.tmHeight, TM.tmExternalLeading, FCharSize.cy]);
+//      CnDebugger.LogFmt('TextMetrics tmHeight %d + ExternalLeading %d > Cy %d. Increase.',
+//        [TM.tmHeight, TM.tmExternalLeading, FCharSize.cy]);
 {$ENDIF}
       FCharSize.cy := TM.tmHeight + TM.tmExternalLeading;
     end;
@@ -1530,8 +1530,8 @@ var
     if Size.cy > FCharSize.cy then
     begin
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('TextExtentPoint Size.cy %d > FCharSize.cy %d. Increase.',
-        [Size.cy, FCharSize.cy]);
+//      CnDebugger.LogFmt('TextExtentPoint Size.cy %d > FCharSize.cy %d. Increase.',
+//        [Size.cy, FCharSize.cy]);
 {$ENDIF}
       FCharSize.cy := Size.cy;
     end;
@@ -1543,9 +1543,9 @@ var
       FCharSize.cx := Size.cx div Length(csAlphaText);
 
   {$IFDEF DEBUG}
-    CnDebugger.LogFmt('[%s] TM.Height: %d TM.Width: %d Size.cx: %d / %d Size.cy: %d',
-      [AName, TM.tmHeight + TM.tmExternalLeading, TM.tmAveCharWidth,
-      Size.cx, Length(csAlphaText), Size.cy]);
+//    CnDebugger.LogFmt('[%s] TM.Height: %d TM.Width: %d Size.cx: %d / %d Size.cy: %d',
+//      [AName, TM.tmHeight + TM.tmExternalLeading, TM.tmAveCharWidth,
+//      Size.cx, Length(csAlphaText), Size.cy]);
   {$ENDIF}
   end;
 
@@ -1565,9 +1565,9 @@ begin
   begin
     // 坑一：EditControl.Font 一般是默认的 MS Sans Serif，不代表真实情况
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('TCnEditControlWrapper.CalcCharSize');
-    CnDebugger.LogFmt('FontName: %s Height: %d Width: %d',
-      [LogFont.lfFaceName, LogFont.lfHeight, LogFont.lfWidth]);
+//    CnDebugger.LogMsg('TCnEditControlWrapper.CalcCharSize');
+//    CnDebugger.LogFmt('FontName: %s Height: %d Width: %d',
+//      [LogFont.lfFaceName, LogFont.lfHeight, LogFont.lfWidth]);
   {$ENDIF}
 
     FSaveFontName := Option.FontName;
@@ -1590,7 +1590,7 @@ begin
       StrCopy(LogFont.lfFaceName, PChar(FontName));
       LogFont.lfHeight := FontHeight;
     {$IFDEF DEBUG}
-      CnDebugger.LogFmt('Adjust FontName: %s Height: %d', [FontName, FontHeight]);
+//      CnDebugger.LogFmt('Adjust FontName: %s Height: %d', [FontName, FontHeight]);
     {$ENDIF}
       // 再保留一份编辑器字体对象供使用
       FEditorBaseFont.Name := FontName;
@@ -1614,14 +1614,14 @@ begin
           CalcFont(HighlightNames[I], AFont);
         end;
       {$IFDEF DEBUG}
-        CnDebugger.LogFmt('CharSize from registry: X = %d Y = %d',
-          [FCharSize.cx, FCharSize.cy]);
+//        CnDebugger.LogFmt('CharSize from registry: X = %d Y = %d',
+//          [FCharSize.cx, FCharSize.cy]);
       {$ENDIF}
       end
       else
       begin
       {$IFDEF DEBUG}
-        CnDebugger.LogMsgWarning('Access registry fail.');
+//        CnDebugger.LogMsgWarning('Access registry fail.');
       {$ENDIF}
         AFont := LogFont;
         AFont.lfWeight := FW_BOLD;
@@ -1636,8 +1636,8 @@ begin
       if GetErrorInsightRenderStyle = csErrorInsightRenderStyleSmoothWave then
       begin
 {$IFDEF DEBUG}
-        CnDebugger.LogFmt('GetEditControlCharHeight: Smooth Wave Found.',
-          [csErrorInsightCharHeightOffset]);
+//        CnDebugger.LogFmt('GetEditControlCharHeight: Smooth Wave Found.',
+//          [csErrorInsightCharHeightOffset]);
 {$ENDIF}
         Inc(FCharSize.cy, csErrorInsightCharHeightOffset);
       end;
@@ -1657,7 +1657,7 @@ begin
           begin
             FCharSize.cy := V;
 {$IFDEF DEBUG}
-            CnDebugger.LogFmt('RTTI EditControl CharHeight %d.', [V]);
+//            CnDebugger.LogFmt('RTTI EditControl CharHeight %d.', [V]);
 {$ENDIF}
           end;
         except
@@ -1671,7 +1671,7 @@ begin
           begin
             FCharSize.cx := V;
 {$IFDEF DEBUG}
-            CnDebugger.LogFmt('RTTI EditControl CharWidth %d.', [V]);
+//            CnDebugger.LogFmt('RTTI EditControl CharWidth %d.', [V]);
 {$ENDIF}
           end;
         except
@@ -1683,8 +1683,8 @@ begin
 {$ENDIF}
 
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('Finally Get FCharSize: x %d, y %d.',
-        [FCharSize.cx, FCharSize.cy]);
+//      CnDebugger.LogFmt('Finally Get FCharSize: x %d, y %d.',
+//        [FCharSize.cx, FCharSize.cy]);
 {$ENDIF}
     finally
       SaveFont := SelectObject(DC, SaveFont);
@@ -1770,7 +1770,7 @@ begin
         begin
           Result := H;
 {$IFDEF DEBUG}
-          CnDebugger.LogFmt('GetEditControlCharHeight: Get CharHeight Property %d.', [H]);
+//          CnDebugger.LogFmt('GetEditControlCharHeight: Get CharHeight Property %d.', [H]);
 {$ENDIF}
           Exit;
         end;
@@ -1793,7 +1793,7 @@ begin
     Options := CnOtaGetEditOptions;
 
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('GetEditControlCharHeight: NO Syntax Highlight. Re-calc.');
+//    CnDebugger.LogMsg('GetEditControlCharHeight: NO Syntax Highlight. Re-calc.');
 {$ENDIF}
     if (Options <> nil) and (GetObject(Control.Font.Handle, SizeOf(LgFont), @LgFont) <> 0) then
     begin
@@ -1818,8 +1818,8 @@ begin
           Result := ASize.cy;
 
 {$IFDEF DEBUG}
-        CnDebugger.LogFmt('GetEditControlCharHeight: TextMetrics Height %d Ext %d, Size.cy %d.',
-          [TM.tmHeight, TM.tmExternalLeading, ASize.cy]);
+//        CnDebugger.LogFmt('GetEditControlCharHeight: TextMetrics Height %d Ext %d, Size.cy %d.',
+//          [TM.tmHeight, TM.tmExternalLeading, ASize.cy]);
 {$ENDIF}
         DeleteObject(FontHandle);
         Exit;
@@ -1908,7 +1908,7 @@ begin
   if IsEditControl(AComponent) and (Operation = opRemove) then
   begin
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('TCnEditControlWrapper.DoEditControlNotify: opRemove');
+//    CnDebugger.LogMsg('TCnEditControlWrapper.DoEditControlNotify: opRemove');
   {$ENDIF}
     FEditControlList.Remove(AComponent);
     DeleteEditor(TControl(AComponent));
@@ -1921,7 +1921,7 @@ begin
   if (EditControl <> nil) and (FEditControlList.IndexOf(EditControl) < 0) then
   begin
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('TCnEditControlWrapper.DoEditControlNotify: opInsert');
+//    CnDebugger.LogMsg('TCnEditControlWrapper.DoEditControlNotify: opInsert');
   {$ENDIF}
     FEditControlList.Add(EditControl);
     EditControl.FreeNotification(Self);
@@ -1983,7 +1983,7 @@ begin
     FOptionDlgVisible := False;
     FOptionChanged := True;
   {$IFDEF DEBUG}
-    CnDebugger.LogMsg('Option Dialog Closed. Editor Option Changed');
+//    CnDebugger.LogMsg('Option Dialog Closed. Editor Option Changed');
   {$ENDIF}
   end;
 end;
@@ -1991,7 +1991,7 @@ end;
 procedure TCnEditControlWrapper.AfterThemeChange(Sender: TObject);
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('EditControlWrapper AfterThemeChange. Option Changed.');
+//  CnDebugger.LogMsg('EditControlWrapper AfterThemeChange. Option Changed.');
 {$ENDIF}
   FOptionChanged := True;
 end;
@@ -2048,7 +2048,7 @@ begin
       Exit;
     end;
   {$IFDEF DEBUG}
-    CnDebugger.LogMsgWarning('GetTopMostEditControl: not found in list.');
+//    CnDebugger.LogMsgWarning('GetTopMostEditControl: not found in list.');
   {$ENDIF}
 end;
 
@@ -2146,7 +2146,7 @@ begin
   begin
     Result := IndexPosToCurPosProc(EditControl, Col, Line);
   {$IFDEF DEBUG}
-    CnDebugger.LogFmt('IndexPosToCurPos: %d,%d => %d', [Col, Line, Result]);
+//    CnDebugger.LogFmt('IndexPosToCurPos: %d,%d => %d', [Col, Line, Result]);
   {$ENDIF}
   end
   else
@@ -2332,7 +2332,7 @@ begin
       (Editor.ViewLineNumber[LineNum - Editor.FLastTop] <> LogicLineNum) then
     begin
     {$IFDEF DEBUG}
-      CnDebugger.LogMsg('DoAfterPaintLine: Editor.FLinesChanged := True');
+//      CnDebugger.LogMsg('DoAfterPaintLine: Editor.FLinesChanged := True');
     {$ENDIF}
       Editor.FLinesChanged := True;
     end;
@@ -2440,7 +2440,7 @@ var
   I: Integer;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnEditControlWrapper.DoEditorChange: ' + EditorChangeTypesToStr(ChangeType));
+//  CnDebugger.LogMsg('TCnEditControlWrapper.DoEditorChange: ' + EditorChangeTypesToStr(ChangeType));
 {$ENDIF}
 
   if Editor = nil then // 某些古怪情况下 Editor 为 nil？
@@ -2685,8 +2685,8 @@ begin
        Continue;
 
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('ScrollAndClickEditControl Scroll %d. X %d Y: %d.', [Item.BpDeltaLine,
-      CN_BP_CLICK_POS_X, Item.BpPosY]);
+//    CnDebugger.LogFmt('ScrollAndClickEditControl Scroll %d. X %d Y: %d.', [Item.BpDeltaLine,
+//      CN_BP_CLICK_POS_X, Item.BpPosY]);
 {$ENDIF}
 
     Item.BpEditView.Scroll(Item.BpDeltaLine, 0);

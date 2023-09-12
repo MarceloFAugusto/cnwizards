@@ -920,7 +920,7 @@ begin
     end;
     FScriptMenu.Visible := FScriptMenu.Count > 0;
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('SrcEditor Block Tools Script Items: %d', [FScriptMenu.Count]);
+//    CnDebugger.LogFmt('SrcEditor Block Tools Script Items: %d', [FScriptMenu.Count]);
 {$ENDIF}
   end;
 {$ENDIF}
@@ -1042,8 +1042,8 @@ begin
     StartingRow := EditView.Block.StartingRow;
     EndingRow := EditView.Block.EndingRow;
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('EditorBlock Tool EditView: Start %d, End %d.', [EditView.TopRow, EditView.BottomRow]);
-    CnDebugger.LogFmt('EditorBlock Tool Selection: Start %d, End %d.', [StartingRow, EndingRow]);
+//    CnDebugger.LogFmt('EditorBlock Tool EditView: Start %d, End %d.', [EditView.TopRow, EditView.BottomRow]);
+//    CnDebugger.LogFmt('EditorBlock Tool Selection: Start %d, End %d.', [StartingRow, EndingRow]);
 {$ENDIF}
 
 {$IFDEF BDS} // 只在 BDS 中有代码折叠功能时才重新计算
@@ -1064,7 +1064,7 @@ begin
     Dec(StartingRow, ElidedStartingRows);
     Dec(EndingRow, ElidedEndingRows);
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('EditorBlock Tool Remove Elided: Start %d, End %d.', [StartingRow, EndingRow]);
+//    CnDebugger.LogFmt('EditorBlock Tool Remove Elided: Start %d, End %d.', [StartingRow, EndingRow]);
 {$ENDIF}
 {$ENDIF}
 

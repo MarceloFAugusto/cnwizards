@@ -332,9 +332,9 @@ var
   Section: string;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogEnter('TCnBookmarkWizard.LoadBookmark');
-  if SourceEditor.GetEditViewCount = 0 then
-    CnDebugger.LogMsgWithType('SourceEditor.GetEditViewCount = 0', cmtWarning);
+//  CnDebugger.LogEnter('TCnBookmarkWizard.LoadBookmark');
+//  if SourceEditor.GetEditViewCount = 0 then
+//    CnDebugger.LogMsgWithType('SourceEditor.GetEditViewCount = 0', cmtWarning);
 {$ENDIF}
   if Active and FileExists(SourceEditor.FileName) and
     (SourceEditor.GetEditViewCount > 0) then
@@ -344,8 +344,8 @@ begin
       if FindSection(Ini, SourceEditor.FileName, Section) then
       begin
       {$IFDEF DEBUG}
-        CnDebugger.LogMsg('Load bookmark: ' + SourceEditor.FileName);
-        CnDebugger.LogMsg('Section: ' + Section);
+//        CnDebugger.LogMsg('Load bookmark: ' + SourceEditor.FileName);
+//        CnDebugger.LogMsg('Section: ' + Section);
       {$ENDIF}
         View := SourceEditor.EditViews[0];
         SavePos := View.CursorPos;
@@ -367,7 +367,7 @@ begin
     end;
   end;
 {$IFDEF DEBUG}
-  CnDebugger.LogLeave('TCnBookmarkWizard.LoadBookmark');
+//  CnDebugger.LogLeave('TCnBookmarkWizard.LoadBookmark');
 {$ENDIF}
 end;
 
@@ -381,9 +381,9 @@ var
   Section: string;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogEnter('TCnBookmarkWizard.SaveBookmark');
-  if SourceEditor.GetEditViewCount = 0 then
-    CnDebugger.LogMsgWithType('SourceEditor.GetEditViewCount = 0', cmtWarning);
+//  CnDebugger.LogEnter('TCnBookmarkWizard.SaveBookmark');
+//  if SourceEditor.GetEditViewCount = 0 then
+//    CnDebugger.LogMsgWithType('SourceEditor.GetEditViewCount = 0', cmtWarning);
 {$ENDIF}
   if Active and FileExists(SourceEditor.FileName) and
     (SourceEditor.GetEditViewCount > 0) then
@@ -402,8 +402,8 @@ begin
           if not FileNameSaved then
           begin
           {$IFDEF DEBUG}
-            CnDebugger.LogMsg('Save bookmark: ' + SourceEditor.FileName);
-            CnDebugger.LogMsg('Section: ' + Section);
+//            CnDebugger.LogMsg('Save bookmark: ' + SourceEditor.FileName);
+//            CnDebugger.LogMsg('Section: ' + Section);
           {$ENDIF}
             Ini.WriteString(Section, csFileName, SourceEditor.FileName);
             FileNameSaved := True;
@@ -416,7 +416,7 @@ begin
     end;
   end;
 {$IFDEF DEBUG}
-  CnDebugger.LogLeave('TCnBookmarkWizard.SaveBookmark');
+//  CnDebugger.LogLeave('TCnBookmarkWizard.SaveBookmark');
 {$ENDIF}
 end;
 
@@ -443,7 +443,7 @@ begin
     if S <> FCurrentSource then
     begin
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('Bookmark Notify Source from %s to %s', [FCurrentSource, S]);
+//      CnDebugger.LogFmt('Bookmark Notify Source from %s to %s', [FCurrentSource, S]);
 {$ENDIF}
       FCurrentSource := S;
       FSourceFileChanged := True;
@@ -617,7 +617,7 @@ end;
 constructor TCnBookmarkForm.Create(AOwner: TComponent);
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnBookmarkForm.Create');
+//  CnDebugger.LogMsg('TCnBookmarkForm.Create');
 {$ENDIF}
   inherited;
   FList := TObjectList.Create;
@@ -636,7 +636,7 @@ begin
   CnBookmarkForm := nil;
   inherited;
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('TCnBookmarkForm.Destroy');
+//  CnDebugger.LogMsg('TCnBookmarkForm.Destroy');
 {$ENDIF}
 end;
 

@@ -661,7 +661,7 @@ begin
   begin
     S := CnOtaGetCurrentSourceFileName;
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('TCnProcListWizard.CheckCurrentFile ' + S);
+//    CnDebugger.LogMsg('TCnProcListWizard.CheckCurrentFile ' + S);
 {$ENDIF}
     try
       Obj.EditorToolBar.Visible := Active and FUseEditorToolBar and
@@ -774,8 +774,8 @@ begin
       // DropDownList 定位并显示到 AText
       Idx := ClassCombo.DropDownList.DisplayItems.IndexOf(AText);
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('TCnProcListWizard.ClassComboDropDown. To Select %d, Text: %s',
-        [Idx, AText]);
+//      CnDebugger.LogFmt('TCnProcListWizard.ClassComboDropDown. To Select %d, Text: %s',
+//        [Idx, AText]);
 {$ENDIF}
 
       // 有待选中条目，则选中其上一个，UpdateDisplay 会再下移一个条目
@@ -908,7 +908,7 @@ var
   Item, SubItem: TMenuItem;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('ProcList: Create Proc ToolBar from EditControl %8.8x', [Integer(EditControl)]);
+//  CnDebugger.LogFmt('ProcList: Create Proc ToolBar from EditControl %8.8x', [Integer(EditControl)]);
 {$ENDIF}
   ToolBar.Top := 40; // 让其处于标准编辑器工具栏之下
   ToolBar.Images := dmCnSharedImages.ilProcToolBar;
@@ -987,7 +987,7 @@ begin
   ToolBar.PopupMenu := Obj.PopupMenu;
 
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('ProcList: Proc ToolBar Obj Created: %8.8x', [Integer(Obj)]);
+//  CnDebugger.LogFmt('ProcList: Proc ToolBar Obj Created: %8.8x', [Integer(Obj)]);
 {$ENDIF}
 
   Obj.ClassCombo := TCnProcListComboBox.Create(ToolBar);
@@ -1159,7 +1159,7 @@ begin
   Obj.MatchFrame := TCnMatchButtonFrame.Create(GetIdeMainForm);
   Obj.MatchFrame.Name := Obj.MatchFrame.Name + FormatDateTime('yyyyMMddhhmmss', Now);
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('Create ProcToolbar: MatchFrame Name: ' + Obj.MatchFrame.Name);
+//  CnDebugger.LogMsg('Create ProcToolbar: MatchFrame Name: ' + Obj.MatchFrame.Name);
 {$ENDIF}
 {$ELSE}
   Obj.MatchFrame := TCnMatchButtonFrame.Create(ToolBar);
@@ -1186,7 +1186,7 @@ begin
 
   FProcToolBarObjects.Add(Obj);
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('ProcList: Proc ToolBar Obj Added.');
+//  CnDebugger.LogMsg('ProcList: Proc ToolBar Obj Added.');
 {$ENDIF}
 end;
 
@@ -1383,13 +1383,13 @@ var
   Obj: TCnProcToolBarObj;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('ProcList: Init Proc ToolBar from EditControl %8.8x', [Integer(EditControl)]);
+//  CnDebugger.LogFmt('ProcList: Init Proc ToolBar from EditControl %8.8x', [Integer(EditControl)]);
 {$ENDIF}
   Obj := GetToolBarObjFromEditControl(EditControl);
   if Obj = nil then Exit;
 
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('ProcList: Obj found from EditControl %8.8x', [Integer(Obj)]);
+//  CnDebugger.LogFmt('ProcList: Obj found from EditControl %8.8x', [Integer(Obj)]);
 {$ENDIF}
 
 {$IFDEF IDE_SUPPORT_HDPI}
@@ -1399,7 +1399,7 @@ begin
 {$ENDIF}
 
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('ProcList: ClassCombo Font Size %d', [Obj.ClassCombo.Font.Size]);
+//  CnDebugger.LogFmt('ProcList: ClassCombo Font Size %d', [Obj.ClassCombo.Font.Size]);
 {$ENDIF}
 
   IdeScaleToolbarComboFontSize(Obj.ClassCombo);
@@ -1446,7 +1446,7 @@ begin
   Obj.MatchFrame.SyncButtonHint;
   
 {$IFDEF DEBUG}
-  CnDebugger.LogMsg('ProcList: Init Proc ToolBar Complete.');
+//  CnDebugger.LogMsg('ProcList: Init Proc ToolBar Complete.');
 {$ENDIF}
 end;
 
@@ -1632,8 +1632,8 @@ begin
       // DropDownList 定位并显示到 AText
       Idx := ProcCombo.DropDownList.DisplayItems.IndexOf(AText);
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('TCnProcListWizard.ProcComboDropDown. To Select %d, Text: %s',
-        [Idx, AText]);
+//      CnDebugger.LogFmt('TCnProcListWizard.ProcComboDropDown. To Select %d, Text: %s',
+//        [Idx, AText]);
 {$ENDIF}
 
       // 有待选中条目，则选中其上一个，UpdateDisplay 会再下移一个条目
@@ -1659,15 +1659,15 @@ var
   I: Integer;
 begin
 {$IFDEF DEBUG}
-  CnDebugger.LogFmt('ProcList: Prepare to Remove Objs from EditControl %8.8x',
-    [Integer(EditControl)]);
+//  CnDebugger.LogFmt('ProcList: Prepare to Remove Objs from EditControl %8.8x',
+//    [Integer(EditControl)]);
 {$ENDIF}
   for I := FProcToolBarObjects.Count - 1 downto 0 do
     if TCnProcToolBarObj(FProcToolBarObjects[I]).EditControl = EditControl then
     begin
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('ProcList: Remove Obj %8.8x from EditControl %8.8x',
-        [Integer(FProcToolBarObjects[I]), Integer(EditControl)]);
+//      CnDebugger.LogFmt('ProcList: Remove Obj %8.8x from EditControl %8.8x',
+//        [Integer(FProcToolBarObjects[I]), Integer(EditControl)]);
 {$ENDIF}
       FProcToolBarObjects.Delete(I);
     end;
@@ -4353,7 +4353,7 @@ var
       Canvas.Font.Size := O;
 
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('ProcDropDownBox AdjustListItemHeight. Calc Font Size %d', [S]);
+//      CnDebugger.LogFmt('ProcDropDownBox AdjustListItemHeight. Calc Font Size %d', [S]);
 {$ENDIF}
 
       if S > 16 then
@@ -4366,7 +4366,7 @@ var
         ItemHeight := S;
 
 {$IFDEF DEBUG}
-        CnDebugger.LogFmt('ProcDropDownBox List ItemHeight Changed to %d', [ItemHeight]);
+//        CnDebugger.LogFmt('ProcDropDownBox List ItemHeight Changed to %d', [ItemHeight]);
 {$ENDIF}
       end;
     except
@@ -4379,13 +4379,13 @@ begin
   begin
     S := WizOptions.CalcIntEnlargedValue(WizOptions.SizeEnlarge, csDefProcDropDownBoxFontSize);
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('ProcDropDownBox Enlarge Mode. Should Set Font Size to %d', [S]);
+//    CnDebugger.LogFmt('ProcDropDownBox Enlarge Mode. Should Set Font Size to %d', [S]);
 {$ENDIF}
     if Font.Size <> S then
     begin
       Font.Size := S;
 {$IFDEF DEBUG}
-      CnDebugger.LogFmt('ProcDropDownBox List Font Change Size to %d', [Font.Size]);
+//      CnDebugger.LogFmt('ProcDropDownBox List Font Change Size to %d', [Font.Size]);
 {$ENDIF}
     end;
   end
@@ -4393,7 +4393,7 @@ begin
   begin
     Font.Size := csDefProcDropDownBoxFontSize;
 {$IFDEF DEBUG}
-    CnDebugger.LogFmt('Input Helper List Font Size Restored to %d', [Font.Size]);
+//    CnDebugger.LogFmt('Input Helper List Font Size Restored to %d', [Font.Size]);
 {$ENDIF}
   end;
   AdjustListItemHeight;
@@ -4426,7 +4426,7 @@ begin
   if Supports(BorlandIDEServices, IOTAIDEThemingServices, Theming) then
   begin
 {$IFDEF DEBUG}
-    CnDebugger.LogMsg('Procedure Toolbar Got Theme Changed Notification.');
+//    CnDebugger.LogMsg('Procedure Toolbar Got Theme Changed Notification.');
 {$ENDIF}
     for I := FProcToolBarObjects.Count - 1 downto 0 do
     begin
@@ -4436,7 +4436,7 @@ begin
         try
           Theming.ApplyTheme(Obj.EditorToolBar);
 {$IFDEF DEBUG}
-          CnDebugger.LogMsg('Procedure Toolbar Apply Theme for ' + IntToStr(I));
+//          CnDebugger.LogMsg('Procedure Toolbar Apply Theme for ' + IntToStr(I));
 {$ENDIF}
         except
           ;
